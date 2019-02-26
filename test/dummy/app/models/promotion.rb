@@ -7,7 +7,7 @@ class Promotion < ApplicationRecord
     true
   end
 
-  def to_notification
+  def to_notification(*)
     {
       title: "Promotion ##{id} - #{name}",
       content: "#{name} is coming to you this spring",

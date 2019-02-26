@@ -7,10 +7,10 @@ class Purchase < ApplicationRecord
     true
   end
 
-  def to_notification
+  def to_notification(entity:, trigger:)
     {
-      title: "Purchase ##{id} - #{name}",
-      content: "Congratulations on your recent purchase of #{name}",
+      title: "Purchase ##{id} for #{entity} #{send(entity).name}",
+      content: "Congratulations on your recent #{trigger} of #{name}",
       image_url: ""
     }
   end
