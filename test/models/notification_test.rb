@@ -20,13 +20,13 @@ module Correspondent
       subscriber = User.create!(name: "user", email: "user@email.com")
       publisher = Purchase.create!(name: "purchase", user: subscriber)
 
-      notification = Correspondent::Notification.create_for!(publisher, :user)
+      notification = Correspondent::Notification.create_for!(publisher, :user, :purchase)
 
       assert !notification.respond_to?(:each)
       assert notification.is_a?(Correspondent::Notification)
       assert_equal publisher, notification.publisher
       assert_equal subscriber, notification.subscriber
-      assert_equal "Purchase ##{publisher.id} - purchase", notification.title
+      assert_equal "Purchase ##{publisher.id} for user user", notification.title
       assert_equal "Congratulations on your recent purchase of purchase", notification.content
     end
 
@@ -37,7 +37,7 @@ module Correspondent
       ]
 
       promotion = Promotion.create!(users: users, name: "promo")
-      Correspondent::Notification.create_for!(promotion, :users)
+      Correspondent::Notification.create_for!(promotion, :users, :promote)
 
       assert_equal 2, Correspondent::Notification.count
 

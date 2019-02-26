@@ -51,7 +51,8 @@ module Correspondent # :nodoc:
           define_method @@trigger do |*args|
             ActiveSupport::Notifications.instrument("#{self.class}##{@@trigger}_on_#{@@entity}",
                                                     instance: self,
-                                                    entity: @@entity) do
+                                                    entity: @@entity,
+                                                    trigger: @@trigger) do
               original_method.bind(self).call(*args)
             end
           end
@@ -65,7 +66,7 @@ module Correspondent # :nodoc:
 
   def register_subscriptions(entity, trigger)
     ActiveSupport::Notifications.subscribe("#{self}##{trigger}_on_#{entity}") do |_, _, _, _, payload|
-      Correspondent::Notification.create_for!(payload[:instance], payload[:entity])
+      Correspondent::Notification.create_for!(payload[:instance], payload[:entity], payload[:trigger])
     end
   end
 
