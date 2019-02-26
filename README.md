@@ -24,3 +24,5 @@ Work in progress.
 ## Contributing
 
 Contributions are very welcome! Don't hesitate to ask if you wish to contribute, but don't yet know how. Please refer to this simple [guideline].
+
+[guideline]: https://github.com/vinistock/correspondent/blob/master/CONTRIBUTING.md
