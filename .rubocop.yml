@@ -2,6 +2,7 @@ AllCops:
   Exclude:
     - test/dummy/**/*
     - coverage/**/*
+    - lib/generators/**/templates/*
 
 Metrics/LineLength:
   Max: 120
