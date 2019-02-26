@@ -14,6 +14,7 @@ ActiveRecord::Migrator.migrations_paths = [
 
 require "rails/test_help"
 require "byebug"
+require "purdytest"
 
 Minitest.backtrace_filter = Minitest::BacktraceFilter.new
 

@@ -88,6 +88,8 @@ GEM
       ast (~> 2.4.0)
     powerpack (0.1.2)
     psych (3.1.0)
+    purdytest (2.0.0)
+      minitest (~> 5.5)
     rack (2.0.6)
     rack-test (1.1.0)
       rack (>= 1.0, < 3)
@@ -169,6 +171,7 @@ DEPENDENCIES
   codeclimate-test-reporter (~> 1.0)
   correspondent!
   minitest
+  purdytest
   rails_best_practices
   rubocop
   simplecov (~> 0.16.1)
