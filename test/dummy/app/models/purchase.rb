@@ -3,5 +3,6 @@ class Purchase < ApplicationRecord
   notifies :user, :purchase
 
   def purchase
+    true
   end
 end
