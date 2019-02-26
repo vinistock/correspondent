@@ -10,7 +10,22 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_02_26_002057) do
+ActiveRecord::Schema.define(version: 2019_02_26_182148) do
+
+  create_table "correspondent_notifications", force: :cascade do |t|
+    t.string "title"
+    t.string "content"
+    t.string "image_url"
+    t.boolean "dismissed", default: false
+    t.string "publisher_type", null: false
+    t.integer "publisher_id", null: false
+    t.string "subscriber_type", null: false
+    t.integer "subscriber_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["publisher_type", "publisher_id"], name: "index_correspondent_on_publisher"
+    t.index ["subscriber_type", "subscriber_id"], name: "index_correspondent_on_subscriber"
+  end
 
   create_table "purchases", force: :cascade do |t|
     t.string "name"
