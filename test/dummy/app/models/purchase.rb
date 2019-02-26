@@ -6,4 +6,12 @@ class Purchase < ApplicationRecord
   def purchase
     true
   end
+
+  def to_notification
+    {
+      title: "Purchase ##{id} - #{name}",
+      content: "Congratulations on your recent purchase of #{name}",
+      image_url: ""
+    }
+  end
 end
