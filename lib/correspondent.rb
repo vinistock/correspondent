@@ -22,9 +22,9 @@ module Correspondent # :nodoc:
   # and publish / subscribe to notifications
   # using ActiveSupport's API.
   #
-  # This will patch the method +trigger+ to publish
+  # This will patch the methods +triggers+ to publish
   # notifications using the method_added callback.
-  # Upon the +trigger+ method definition, the callback
+  # Upon each +triggers+ method definition, the callback
   # runs and patches the original method adding instrumentation.
   # If already patched, doesn't do anything (to avoid infinite loops).
 

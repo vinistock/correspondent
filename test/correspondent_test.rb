@@ -34,5 +34,17 @@ module Correspondent
       assert method_source.include?("ActiveSupport::Notifications.instrument")
       assert promotion.promote
     end
+
+    test "#notifies when an error is raised" do
+      user = User.create!(name: "user", email: "user@email.com")
+      purchase = Purchase.create!(name: "purchase", user: user)
+
+      raises_exception = -> { raise StandardError.new }
+
+      purchase.stub :purchase, raises_exception do
+        assert_raises(StandardError) { purchase.purchase }
+        assert_equal 0, Correspondent::Notification.count
+      end
+    end
   end
 end
