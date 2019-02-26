@@ -1,0 +1,14 @@
+AllCops:
+  Exclude:
+    - test/dummy/**/*
+    - coverage/**/*
+
+Metrics/LineLength:
+  Max: 120
+Metrics/BlockLength:
+  Exclude:
+    - test/**/*
+Style/GuardClause:
+  Enabled: false
+Style/StringLiterals:
+  Enabled: false

@@ -1,0 +1,33 @@
+# frozen_string_literal: true
+
+$LOAD_PATH.push File.expand_path("lib", __dir__)
+
+require "correspondent/version"
+
+Gem::Specification.new do |spec|
+  spec.name        = "correspondent"
+  spec.version     = Correspondent::VERSION
+  spec.authors     = ["Vinicius Stock"]
+  spec.email       = ["vinicius.stock@outlook.com"]
+  spec.homepage    = "https://github.com/vinistock/correspondent"
+  spec.summary     = "User notifications made simple."
+  spec.description = "User notifications made simple."
+  spec.license     = "MIT"
+
+  spec.files = Dir["{app,config,db,lib}/**/*",
+                   "MIT-LICENSE",
+                   "Rakefile",
+                   "README.md"]
+
+  spec.add_dependency "rails"
+
+  spec.add_development_dependency "brakeman"
+  spec.add_development_dependency "bundler"
+  spec.add_development_dependency "byebug"
+  spec.add_development_dependency "codeclimate-test-reporter", "~> 1.0"
+  spec.add_development_dependency "minitest"
+  spec.add_development_dependency "rails_best_practices"
+  spec.add_development_dependency "rubocop"
+  spec.add_development_dependency "simplecov", "~> 0.16.1"
+  spec.add_development_dependency "sqlite3", "< 1.4.0"
+end
