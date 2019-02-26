@@ -1,9 +1,13 @@
 class Purchase < ApplicationRecord
   belongs_to :user
   has_many :notifications, class_name: "Correspondent::Notification", as: :publisher
-  notifies :user, :purchase
+  notifies :user, %i[purchase refund]
 
   def purchase
+    true
+  end
+
+  def refund
     true
   end
 

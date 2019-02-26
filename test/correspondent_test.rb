@@ -16,6 +16,10 @@ module Correspondent
       method_source = purchase.method(:purchase).source
       assert method_source.include?("ActiveSupport::Notifications.instrument")
       assert purchase.purchase
+
+      method_source = purchase.method(:refund).source
+      assert method_source.include?("ActiveSupport::Notifications.instrument")
+      assert purchase.refund
     end
 
     test "#notifies for many to many" do

@@ -28,12 +28,14 @@ module Correspondent # :nodoc:
   # runs and patches the original method adding instrumentation.
   # If already patched, doesn't do anything (to avoid infinite loops).
 
-  # rubocop:disable Style/ClassVars,Metrics/MethodLength
-  def notifies(entity, trigger)
+  # rubocop:disable Style/ClassVars,Metrics/MethodLength,Style/Next,Metrics/AbcSize
+  def notifies(entity, triggers)
+    triggers = [triggers] unless triggers.is_a?(Array)
+
     class_eval do
       # Save parameters for temporary class usage
       @@entity = entity
-      @@trigger = trigger
+      @@triggers = triggers
 
       # Define the hook to capture method after
       # definition. Capture original method,
@@ -42,31 +44,35 @@ module Correspondent # :nodoc:
       # Finally, redefine method surrounding with
       # instrumentation block.
       def self.method_added(name)
-        if name == @@trigger && Correspondent.patched_methods.exclude?(@@trigger)
-          original_method = instance_method(@@trigger)
-          Correspondent.patched_methods << @@trigger
+        @@triggers.each do |trigger|
+          if name == trigger && Correspondent.patched_methods.exclude?(trigger)
+            original_method = instance_method(trigger)
+            Correspondent.patched_methods << trigger
 
-          undef_method(@@trigger)
+            undef_method(trigger)
 
-          define_method @@trigger do |*args|
-            ActiveSupport::Notifications.instrument("#{self.class}##{@@trigger}_on_#{@@entity}",
-                                                    instance: self,
-                                                    entity: @@entity,
-                                                    trigger: @@trigger) do
-              original_method.bind(self).call(*args)
+            define_method trigger do |*args|
+              ActiveSupport::Notifications.instrument("#{self.class}##{trigger}_on_#{@@entity}",
+                                                      instance: self,
+                                                      entity: @@entity,
+                                                      trigger: trigger) do
+                original_method.bind(self).call(*args)
+              end
             end
           end
         end
       end
     end
 
-    register_subscriptions(entity, trigger)
+    register_subscriptions(entity, triggers)
   end
-  # rubocop:enable Style/ClassVars,Metrics/MethodLength
+  # rubocop:enable Style/ClassVars,Metrics/MethodLength,Style/Next,Metrics/AbcSize
 
-  def register_subscriptions(entity, trigger)
-    ActiveSupport::Notifications.subscribe("#{self}##{trigger}_on_#{entity}") do |_, _, _, _, payload|
-      Correspondent::Notification.create_for!(payload[:instance], payload[:entity], payload[:trigger])
+  def register_subscriptions(entity, triggers)
+    triggers.each do |trigger|
+      ActiveSupport::Notifications.subscribe("#{self}##{trigger}_on_#{entity}") do |_, _, _, _, payload|
+        Correspondent::Notification.create_for!(payload[:instance], payload[:entity], payload[:trigger])
+      end
     end
   end
 
