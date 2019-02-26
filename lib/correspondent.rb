@@ -31,23 +31,28 @@ module Correspondent # :nodoc:
   # rubocop:disable Style/ClassVars,Metrics/MethodLength
   def notifies(entity, trigger)
     class_eval do
+      # Save parameters for temporary class usage
       @@entity = entity
       @@trigger = trigger
 
+      # Define the hook to capture method after
+      # definition. Capture original method,
+      # add to the patched list to avoid infinite
+      # loop and undefine original implementation.
+      # Finally, redefine method surrounding with
+      # instrumentation block.
       def self.method_added(name)
         if name == @@trigger && Correspondent.patched_methods.exclude?(@@trigger)
           original_method = instance_method(@@trigger)
           Correspondent.patched_methods << @@trigger
 
-          warn_level = $VERBOSE
-          $VERBOSE = nil
+          undef_method(@@trigger)
+
           define_method @@trigger do |*args|
             ActiveSupport::Notifications.instrument("#{self.class}##{@@trigger}_on_#{@@entity}") do
               original_method.bind(self).call(*args)
             end
           end
-
-          $VERBOSE = warn_level
         end
       end
     end
