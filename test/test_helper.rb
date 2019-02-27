@@ -27,6 +27,14 @@ if ActiveSupport::TestCase.respond_to?(:fixture_path=)
   ActiveSupport::TestCase.fixtures :all
 end
 
+module ActiveSupport
+  class TestCase
+    def teardown
+      Correspondent.threads.each(&:join)
+    end
+  end
+end
+
 # how_many_times_slower
 #
 # Traps $stdout into a StringIO

@@ -11,13 +11,14 @@ module Correspondent
 
       times_slower = how_many_times_slower do
         Benchmark.ips do |x|
+          x.config(time: 1.5, warmup: 1)
           x.report("non-patched") { purchase.dummy }
           x.report("patched") { purchase.purchase }
           x.compare!
         end
       end
 
-      assert_in_delta(8.5, times_slower, 1.5)
+      assert_in_delta(3.5, times_slower, 1.5)
     end
   end
 end

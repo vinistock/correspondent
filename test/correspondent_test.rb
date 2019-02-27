@@ -14,11 +14,11 @@ module Correspondent
       purchase = Purchase.create!(name: "purchase", user: user)
 
       method_source = purchase.method(:purchase).source
-      assert method_source.include?("ActiveSupport::Notifications.instrument")
+      assert method_source.include?("notify_async")
       assert purchase.purchase
 
       method_source = purchase.method(:refund).source
-      assert method_source.include?("ActiveSupport::Notifications.instrument")
+      assert method_source.include?("notify_async")
       assert purchase.refund
     end
 
@@ -31,7 +31,7 @@ module Correspondent
       promotion = Promotion.create!(users: users, name: "promo")
 
       method_source = promotion.method(:promote).source
-      assert method_source.include?("ActiveSupport::Notifications.instrument")
+      assert method_source.include?("notify_async")
       assert promotion.promote
     end
 
