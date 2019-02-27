@@ -8,8 +8,22 @@ class Purchase < ApplicationRecord
   end
 
   def refund
-    true
+    (1..1000)
+    .map { |i| i**2 }
+    .reverse
+    .uniq
+    .reduce(:+)
   end
+
+  # :nocov:
+  def dummy
+    (1..1000)
+    .map { |i| i**2 }
+    .reverse
+    .uniq
+    .reduce(:+)
+  end
+  # :nocov:
 
   def to_notification(entity:, trigger:)
     {

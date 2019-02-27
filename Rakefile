@@ -25,12 +25,26 @@ require "rake/testtask"
 
 Rake::TestTask.new(:test) do |t|
   t.libs << "test"
-  t.pattern = "test/**/*_test.rb"
+  t.pattern = Dir["test/**/*_test.rb"].reject { |path| path.include?("benchmarks") }
   t.verbose = false
 end
 
 task default: :test
 
+namespace :test do
+  Rake::TestTask.new(:benchmark) do |t|
+    t.libs << "test"
+    t.pattern = "test/benchmarks/**/*_test.rb"
+    t.verbose = false
+  end
+end
+
 task :all do
-  system("brakeman && rake && rubocop --parallel && rails_best_practices")
+  system(
+    "brakeman && "\
+    "rake && "\
+    "rubocop --parallel && "\
+    "rails_best_practices && "\
+    "(echo \"Running benchmarks\n\" && rake test:benchmark)"
+  )
 end

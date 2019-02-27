@@ -50,6 +50,7 @@ GEM
       tzinfo (~> 1.1)
     arel (9.0.0)
     ast (2.4.0)
+    benchmark-ips (2.7.2)
     brakeman (4.4.0)
     builder (3.2.3)
     byebug (11.0.0)
@@ -165,6 +166,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  benchmark-ips
   brakeman
   bundler
   byebug
