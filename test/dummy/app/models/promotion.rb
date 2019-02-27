@@ -1,7 +1,7 @@
 class Promotion < ApplicationRecord
   has_and_belongs_to_many :users
   has_many :notifications, class_name: "Correspondent::Notification", as: :publisher
-  notifies :users, :promote
+  notifies :users, :promote, avoid_duplicates: true
 
   def promote
     true

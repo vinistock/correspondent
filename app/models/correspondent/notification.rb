@@ -10,22 +10,24 @@ module Correspondent
 
     validates_presence_of :publisher, :subscriber
 
+    scope :by_parents, ->(subscriber, publisher) { select(:id).where(subscriber: subscriber, publisher: publisher) }
+
     class << self
       # create_for!
       #
       # Creates notification(s) for the given
       # +instance+ of the publisher and given
       # +entity+ (subscriber).
-      def create_for!(instance, entity, trigger)
+      def create_for!(instance, entity, trigger, options = {})
         attributes = instance.to_notification(entity: entity, trigger: trigger)
         attributes[:publisher] = instance
 
         relation = instance.send(entity)
 
         if relation.respond_to?(:each)
-          create_many!(attributes, relation)
+          create_many!(attributes, relation, options)
         else
-          create_single!(attributes, relation)
+          create_single!(attributes, relation, options)
         end
       end
 
@@ -35,9 +37,11 @@ module Correspondent
       # record of the +relation+ so that
       # a many to many relationship can
       # notify all associated objects.
-      def create_many!(attributes, relation)
+      def create_many!(attributes, relation, options)
         relation.each do |record|
-          create!(attributes.merge(subscriber: record))
+          unless options[:avoid_duplicates] && by_parents(record, attributes[:publisher]).exists?
+            create!(attributes.merge(subscriber: record))
+          end
         end
       end
 
@@ -45,9 +49,9 @@ module Correspondent
       #
       # Creates a single notification for the
       # passed entity.
-      def create_single!(attributes, relation)
+      def create_single!(attributes, relation, options)
         attributes[:subscriber] = relation
-        create!(attributes)
+        create!(attributes) unless options[:avoid_duplicates] && by_parents(relation, attributes[:publisher]).exists?
       end
     end
 

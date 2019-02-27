@@ -43,6 +43,29 @@ module Correspondent
 
       assert_equal "Promotion ##{promotion.id} - promo", Correspondent::Notification.first.title
       assert_equal "promo is coming to you this spring", Correspondent::Notification.first.content
+
+      Correspondent::Notification.create_for!(promotion, :users, :promote, avoid_duplicates: true)
+      assert_equal 2, Correspondent::Notification.count
+    end
+
+    test ".create_for! with avoid duplicates" do
+      subscriber = User.create!(name: "user", email: "user@email.com")
+      publisher = Purchase.create!(name: "purchase", user: subscriber)
+
+      notification = Correspondent::Notification.create_for!(publisher, :user, :purchase)
+      assert notification.is_a?(Correspondent::Notification)
+
+      notification = Correspondent::Notification.create_for!(publisher, :user, :purchase, avoid_duplicates: true)
+      assert_nil notification
+    end
+
+    test ".by_parents" do
+      subscriber = User.create!(name: "user", email: "user@email.com")
+      publisher = Purchase.create!(name: "purchase", user: subscriber)
+
+      notification = Correspondent::Notification.create_for!(publisher, :user, :purchase)
+
+      assert_includes Correspondent::Notification.by_parents(subscriber, publisher), notification
     end
   end
 end

@@ -29,13 +29,14 @@ module Correspondent # :nodoc:
   # If already patched, doesn't do anything (to avoid infinite loops).
 
   # rubocop:disable Style/ClassVars,Metrics/MethodLength,Style/Next,Metrics/AbcSize
-  def notifies(entity, triggers)
+  def notifies(entity, triggers, options = {})
     triggers = [triggers] unless triggers.is_a?(Array)
 
     class_eval do
       # Save parameters for temporary class usage
       @@entity = entity
       @@triggers = triggers
+      @@options = options
 
       # Define the hook to capture method after
       # definition. Capture original method,
@@ -55,7 +56,8 @@ module Correspondent # :nodoc:
               ActiveSupport::Notifications.instrument("#{self.class}##{trigger}_on_#{@@entity}",
                                                       instance: self,
                                                       entity: @@entity,
-                                                      trigger: trigger) do
+                                                      trigger: trigger,
+                                                      options: @@options) do
                 original_method.bind(self).call(*args)
               end
             end
@@ -71,7 +73,12 @@ module Correspondent # :nodoc:
   def register_subscriptions(entity, triggers)
     triggers.each do |trigger|
       ActiveSupport::Notifications.subscribe("#{self}##{trigger}_on_#{entity}") do |_, _, _, _, payload|
-        Correspondent::Notification.create_for!(payload[:instance], payload[:entity], payload[:trigger])
+        Correspondent::Notification.create_for!(
+          payload[:instance],
+          payload[:entity],
+          payload[:trigger],
+          payload[:options]
+        )
       end
     end
   end
