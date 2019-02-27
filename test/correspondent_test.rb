@@ -39,7 +39,7 @@ module Correspondent
       user = User.create!(name: "user", email: "user@email.com")
       purchase = Purchase.create!(name: "purchase", user: user)
 
-      raises_exception = -> { raise StandardError.new }
+      raises_exception = -> { raise StandardError, "Test error" }
 
       purchase.stub :purchase, raises_exception do
         assert_raises(StandardError) { purchase.purchase }
