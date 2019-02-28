@@ -32,5 +32,17 @@ module Correspondent
         )
       end
     end
+
+    # dismiss
+    #
+    # Dismisses a given notification.
+    def dismiss
+      Correspondent::Notification.select(:id)
+                                 .where(id: params[:id])
+                                 .first
+                                 &.dismiss!
+
+      head(:no_content)
+    end
   end
 end

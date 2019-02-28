@@ -35,5 +35,13 @@ module Correspondent
       assert_equal body["count"], 3
       assert_includes response.headers, "eTag"
     end
+
+    test "PUT dismiss" do
+      put "/correspondent/user/#{@subscriber.id}/notifications/#{@notification3.id}/dismiss",
+          headers: { accept: "application/json" }
+
+      assert_response :no_content
+      assert Correspondent::Notification.find(@notification3.id).dismissed
+    end
   end
 end
