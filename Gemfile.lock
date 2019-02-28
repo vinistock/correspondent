@@ -138,6 +138,7 @@ GEM
       rainbow (>= 2.2.2, < 4.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (~> 1.4.0)
+    ruby-prof (0.17.0)
     ruby-progressbar (1.10.0)
     sexp_processor (4.11.0)
     simplecov (0.16.1)
@@ -176,6 +177,7 @@ DEPENDENCIES
   purdytest
   rails_best_practices
   rubocop
+  ruby-prof
   simplecov (~> 0.16.1)
   sqlite3 (< 1.4.0)
 

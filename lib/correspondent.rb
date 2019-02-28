@@ -4,7 +4,7 @@ require "correspondent/engine"
 
 module Correspondent # :nodoc:
   class << self
-    attr_writer :patched_methods, :threads
+    attr_writer :patched_methods, :fiber, :queue
 
     # patched_methods
     #
@@ -15,28 +15,39 @@ module Correspondent # :nodoc:
       @patched_methods ||= []
     end
 
-    # threads
-    #
-    # List to keep track of threads
-    # spawned to process notifications.
-    def threads
-      @threads ||= []
+    def fiber
+      @fiber ||= Fiber.new do
+        loop do
+          data = queue.shift
+
+          Correspondent::Notification.create_for!(
+            data[:instance],
+            data[:entity],
+            data[:trigger],
+            data[:options]
+          )
+
+          Fiber.yield if queue.empty?
+        end
+      end
     end
 
-    # notify_async
+    # queue
     #
-    # Add a thread to the pool to create
-    # notifications asynchronously and reduce
-    # overhead in patched methods.
-    def notify_async(payload)
-      threads << Thread.new(payload) do |data|
-        Correspondent::Notification.create_for!(
-          data[:instance],
-          data[:entity],
-          data[:trigger],
-          data[:options]
-        )
-      end
+    # List of payloads that need to be processed
+    # in the background for creating notifications.
+    def queue
+      @queue ||= []
+    end
+
+    # <<
+    #
+    # Define the << operator to insert +payload+
+    # into the queue and spawn the processing
+    # thread if necessary.
+    def <<(payload)
+      queue << payload
+      fiber.resume
     end
   end
 
@@ -79,12 +90,12 @@ module Correspondent # :nodoc:
 
             define_method trigger do |*args|
               original_method.bind(self).call(*args).tap do
-                Correspondent.notify_async(
+                Correspondent << {
                   instance: self,
                   entity: entity,
                   trigger: trigger,
                   options: options
-                )
+                }
               end
             end
           end
