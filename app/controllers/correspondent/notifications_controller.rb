@@ -15,5 +15,20 @@ module Correspondent
       notifications = Correspondent::Notification.for_subscriber(params[:subscriber_type], params[:subscriber_id])
       render(json: notifications) if stale?(notifications)
     end
+
+    # preview
+    #
+    # Returns the newest notification and the total
+    # number of notifications for the given subscriber.
+    def preview
+      notifications = Correspondent::Notification.for_subscriber(params[:subscriber_type], params[:subscriber_id])
+
+      if stale?(notifications)
+        render(json: {
+          count: notifications.count,
+          notification: notifications.limit(1).first
+        })
+      end
+    end
   end
 end
