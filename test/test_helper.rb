@@ -27,14 +27,6 @@ if ActiveSupport::TestCase.respond_to?(:fixture_path=)
   ActiveSupport::TestCase.fixtures :all
 end
 
-module ActiveSupport
-  class TestCase
-    def teardown
-      Correspondent.threads.each(&:join)
-    end
-  end
-end
-
 # how_many_times_slower
 #
 # Traps $stdout into a StringIO
@@ -49,4 +41,16 @@ def how_many_times_slower
 
   $stdout = original_stdout
   benchmark.string.scan(/(?<=- )[\d.]+(?=x\s+slower)/).first.to_f
+end
+
+# average_exec_time
+#
+# Calculate average execution time
+# for a given block.
+def average_exec_time
+  (0...1000).map do
+    Benchmark.measure do
+      yield
+    end.real
+  end.reduce(:+) / 1000
 end
