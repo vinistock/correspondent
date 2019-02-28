@@ -10,8 +10,18 @@ module Correspondent
 
     validates_presence_of :publisher, :subscriber
 
-    scope :by_parents, ->(subscriber, publisher) { select(:id).where(subscriber: subscriber, publisher: publisher) }
-    scope :for_subscriber, ->(type, id) { where(subscriber_type: type.capitalize, subscriber_id: id).order(id: :desc) }
+    scope :not_dismissed, -> { where(dismissed: false) }
+    scope :by_parents, lambda { |subscriber, publisher|
+      select(:id)
+        .where(subscriber: subscriber, publisher: publisher)
+        .not_dismissed
+    }
+
+    scope :for_subscriber, lambda { |type, id|
+      not_dismissed
+        .where(subscriber_type: type.capitalize, subscriber_id: id)
+        .order(id: :desc)
+    }
 
     class << self
       # create_for!
@@ -62,6 +72,10 @@ module Correspondent
       Rails.cache.fetch(self) do
         attributes.except("updated_at", "subscriber_type", "subscriber_id")
       end
+    end
+
+    def dismiss!
+      update_attribute(:dismissed, true)
     end
   end
 end

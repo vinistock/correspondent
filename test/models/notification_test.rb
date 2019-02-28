@@ -87,5 +87,28 @@ module Correspondent
       notification = Correspondent::Notification.create_for!(publisher, :user, :purchase)
       assert_includes Correspondent::Notification.for_subscriber("user", subscriber.id), notification
     end
+
+    test "#dismiss!" do
+      subscriber = User.create!(name: "user", email: "user@email.com")
+      publisher = Purchase.create!(name: "purchase", user: subscriber)
+
+      notification = Correspondent::Notification.create_for!(publisher, :user, :purchase)
+      notification.dismiss!
+
+      assert notification.dismissed
+    end
+
+    test ".not_dismissed" do
+      subscriber = User.create!(name: "user", email: "user@email.com")
+      publisher = Purchase.create!(name: "purchase", user: subscriber)
+
+      notification = Correspondent::Notification.create_for!(publisher, :user, :purchase)
+      notification2 = Correspondent::Notification.create_for!(publisher, :user, :purchase)
+      notification.dismiss!
+
+      collection = Correspondent::Notification.not_dismissed
+      assert_includes collection, notification2
+      assert_not_includes collection, notification
+    end
   end
 end

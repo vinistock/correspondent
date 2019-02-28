@@ -6,6 +6,10 @@ Correspondent::Engine.routes.draw do
       collection do
         get :preview
       end
+
+      member do
+        put :dismiss
+      end
     end
   end
 end
