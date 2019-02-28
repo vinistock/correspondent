@@ -9,8 +9,8 @@ module Correspondent # :nodoc:
     # patched_methods
     #
     # List to keep track of methods that
-    # have been patched with notification
-    # instrumentation.
+    # have been patched to insert notifications
+    # in the queue.
     def patched_methods
       @patched_methods ||= []
     end
@@ -43,8 +43,7 @@ module Correspondent # :nodoc:
     # <<
     #
     # Define the << operator to insert +payload+
-    # into the queue and spawn the processing
-    # thread if necessary.
+    # into the queue and resume the Fiber processing.
     def <<(payload)
       queue << payload
       fiber.resume
@@ -53,13 +52,13 @@ module Correspondent # :nodoc:
 
   # notifies
   #
-  # Hook to patch the desired method triggers
-  # and publish / subscribe to notifications.
+  # Hook to patch the desired method +triggers+
+  # to push notification creations into the queue.
   #
   # This will patch the methods +triggers+ to publish
   # notifications using the method_added callback.
   # Upon each +triggers+ method definition, the callback
-  # runs and patches the original method adding instrumentation.
+  # runs and patches the original method.
   # If already patched, doesn't do anything (to avoid infinite loops).
 
   # rubocop:disable Style/ClassVars,Metrics/MethodLength,Style/Next,Metrics/AbcSize
@@ -72,12 +71,14 @@ module Correspondent # :nodoc:
       @@triggers = triggers
       @@options = options
 
-      # Define the hook to capture method after
-      # definition. Capture original method,
-      # add to the patched list to avoid infinite
-      # loop and undefine original implementation.
-      # Finally, redefine method surrounding with
-      # instrumentation block.
+      # Method patching
+      #
+      # For each trigger method
+      # 1. Capture unbound instance method
+      # 2. Add it to patched methods to avoid trying to patch it again
+      # 3. Undefine it to avoid re-definition warnings
+      # 4. Define method again invoking original implementation and
+      #    inserting a new payload in the queue to be processed by the Fiber.
       def self.method_added(name)
         @@triggers.each do |trigger|
           if name == trigger && Correspondent.patched_methods.exclude?(trigger)
