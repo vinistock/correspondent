@@ -56,5 +56,11 @@ module Correspondent
     end
 
     private_class_method :create_many!, :create_single!
+
+    def to_json
+      Rails.cache.fetch(self) do
+        attributes.except("updated_at", "subscriber_type", "subscriber_id")
+      end
+    end
   end
 end
