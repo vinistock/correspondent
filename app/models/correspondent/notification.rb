@@ -11,6 +11,7 @@ module Correspondent
     validates_presence_of :publisher, :subscriber
 
     scope :by_parents, ->(subscriber, publisher) { select(:id).where(subscriber: subscriber, publisher: publisher) }
+    scope :for_subscriber, ->(type, id) { where(subscriber_type: type.capitalize, subscriber_id: id).order(id: :desc) }
 
     class << self
       # create_for!
