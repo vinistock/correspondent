@@ -19,10 +19,10 @@ module Correspondent
         end
       end
 
-      assert_in_delta(3.5, times_slower, 1.5)
+      assert_in_delta(5.0, times_slower, 1.5)
     end
 
-    test "the absolute delay time should be smaller than 50ms" do
+    test "the absolute delay time should be smaller than 1ms" do
       user = User.create!(name: "user", email: "user@email.com")
       purchase = Purchase.create!(name: "purchase", user: user)
 
@@ -34,7 +34,8 @@ module Correspondent
         purchase.dummy
       end
 
-      assert patched_time - normal_time < 0.002
+      puts patched_time - normal_time
+      assert patched_time - normal_time < 0.001
     end
   end
 end
