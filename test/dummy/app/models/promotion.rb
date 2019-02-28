@@ -11,7 +11,8 @@ class Promotion < ApplicationRecord
     {
       title: "Promotion ##{id} - #{name}",
       content: "#{name} is coming to you this spring",
-      image_url: ""
+      image_url: "",
+      link_url: "/promotions/#{id}"
     }
   end
 end
