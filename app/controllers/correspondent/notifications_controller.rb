@@ -24,10 +24,12 @@ module Correspondent
       notifications = Correspondent::Notification.for_subscriber(params[:subscriber_type], params[:subscriber_id])
 
       if stale?(notifications)
-        render(json: {
-          count: notifications.count,
-          notification: notifications.limit(1).first
-        })
+        render(
+          json: {
+            count: notifications.count,
+            notification: notifications.limit(1).first
+          }
+        )
       end
     end
   end

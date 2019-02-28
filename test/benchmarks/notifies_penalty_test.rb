@@ -34,7 +34,6 @@ module Correspondent
         purchase.dummy
       end
 
-      puts patched_time - normal_time
       assert patched_time - normal_time < 0.001
     end
   end
