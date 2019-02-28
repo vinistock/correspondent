@@ -15,6 +15,10 @@ module Correspondent # :nodoc:
       @patched_methods ||= []
     end
 
+    # fiber
+    #
+    # Defines the fiber used for processing
+    # the notifications' queue in the background.
     def fiber
       @fiber ||= Fiber.new do
         loop do

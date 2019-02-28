@@ -10,8 +10,8 @@ Gem::Specification.new do |spec|
   spec.authors     = ["Vinicius Stock"]
   spec.email       = ["vinicius.stock@outlook.com"]
   spec.homepage    = "https://github.com/vinistock/correspondent"
-  spec.summary     = "User notifications made simple."
-  spec.description = "User notifications made simple."
+  spec.summary     = "Dead simple configurable user notifications with little overhead."
+  spec.description = "Dead simple configurable user notifications with little overhead."
   spec.license     = "MIT"
 
   spec.files = Dir["{app,config,db,lib}/**/*",
