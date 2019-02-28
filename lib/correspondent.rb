@@ -4,7 +4,7 @@ require "correspondent/engine"
 
 module Correspondent # :nodoc:
   class << self
-    attr_writer :patched_methods
+    attr_writer :patched_methods, :threads
 
     # patched_methods
     #
@@ -14,13 +14,36 @@ module Correspondent # :nodoc:
     def patched_methods
       @patched_methods ||= []
     end
+
+    # threads
+    #
+    # List to keep track of threads
+    # spawned to process notifications.
+    def threads
+      @threads ||= []
+    end
+
+    # notify_async
+    #
+    # Add a thread to the pool to create
+    # notifications asynchronously and reduce
+    # overhead in patched methods.
+    def notify_async(payload)
+      threads << Thread.new(payload) do |data|
+        Correspondent::Notification.create_for!(
+          data[:instance],
+          data[:entity],
+          data[:trigger],
+          data[:options]
+        )
+      end
+    end
   end
 
   # notifies
   #
   # Hook to patch the desired method triggers
-  # and publish / subscribe to notifications
-  # using ActiveSupport's API.
+  # and publish / subscribe to notifications.
   #
   # This will patch the methods +triggers+ to publish
   # notifications using the method_added callback.
@@ -51,37 +74,25 @@ module Correspondent # :nodoc:
             Correspondent.patched_methods << trigger
 
             undef_method(trigger)
+            entity = @@entity
+            options = @@options
 
             define_method trigger do |*args|
-              ActiveSupport::Notifications.instrument("#{self.class}##{trigger}_on_#{@@entity}",
-                                                      instance: self,
-                                                      entity: @@entity,
-                                                      trigger: trigger,
-                                                      options: @@options) do
-                original_method.bind(self).call(*args)
+              original_method.bind(self).call(*args).tap do
+                Correspondent.notify_async(
+                  instance: self,
+                  entity: entity,
+                  trigger: trigger,
+                  options: options
+                )
               end
             end
           end
         end
       end
     end
-
-    register_subscriptions(entity, triggers)
   end
   # rubocop:enable Style/ClassVars,Metrics/MethodLength,Style/Next,Metrics/AbcSize
-
-  def register_subscriptions(entity, triggers)
-    triggers.each do |trigger|
-      ActiveSupport::Notifications.subscribe("#{self}##{trigger}_on_#{entity}") do |_, _, _, _, payload|
-        Correspondent::Notification.create_for!(
-          payload[:instance],
-          payload[:entity],
-          payload[:trigger],
-          payload[:options]
-        )
-      end
-    end
-  end
 
   # ActiveRecord on load hook
   #
