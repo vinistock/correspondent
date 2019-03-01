@@ -68,7 +68,7 @@ module Correspondent
       assert_includes Correspondent::Notification.by_parents(subscriber, publisher), notification
     end
 
-    test "#to_json" do
+    test "#as_json" do
       subscriber = User.create!(name: "user", email: "user@email.com")
       publisher = Purchase.create!(name: "purchase", user: subscriber)
 
@@ -77,7 +77,7 @@ module Correspondent
       Rails.cache.delete(notification)
 
       assert_equal notification.attributes.except("updated_at", "subscriber_type", "subscriber_id"),
-                   notification.to_json
+                   notification.as_json
     end
 
     test ".for_subscriber" do

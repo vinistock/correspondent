@@ -29,7 +29,10 @@ $ rails g correspondent:install
 
 ### Model configuration
 
-Notifications can easily be setup using Correspondent. The following example goes through the basic usage.
+Notifications can easily be setup using Correspondent. The following example goes through the basic usage. There are only two steps for the basic configuration:
+
+1. Invoke notifies and configure the subscriber (user in this case), the triggers (method purchase in this case) and desired options
+2. Define the to_notification method to configure information that needs to be used to create notifications 
 
 ```ruby
 # Example model using Correspondent
@@ -38,16 +41,16 @@ class Purchase < ApplicationRecord
   belongs_to :user
   
   # Notifies configuration
-  # First argument is the subscriber (the one that receives a notification)
-  # Second argument are the triggers (the method inside that model that triggers notifications). Can be an array of symbols.
+  # First argument is the subscriber (the one that receives a notification). Can be an NxN association as well (e.g.: users) which will create a notification for each associated record.
+  # Second argument are the triggers (the method inside that model that triggers notifications). Can be an array of symbols for multiple triggers for the same entity.
   # Third argument are generic options as a hash 
   notifies :user, :purchase, avoid_duplicates: true
 
-  # Notifies will hook into the desired triggers.
+  # `notifies` will hook into the desired triggers.
   # Every time this method is invoked by an instance of Purchase
   # a notification will be created in the database using the
   # `to_notification` method. The handling of notifications is
-  # done asynchronously to cause as little overhead as possible. 
+  # done asynchronously to cause as little overhead as possible.
   def purchase
     # some business logic
   end
@@ -73,6 +76,83 @@ class Purchase < ApplicationRecord
     }
   end
 end
+```
+
+### Options
+
+The available options, their default values and their explanations are listed below.
+
+```ruby
+# Avoid duplicates
+# Prevents creating new notifications if a non dismissed notification for the same publisher and same subscriber already exists
+notifies :some_resouce, :trigger, avoid_duplicates: false
+```
+
+### JSON API
+
+Correspondent exposes a few APIs to be used for handling notification logic in the application.
+
+```json
+Parameters
+
+:subscriber_type -> The subscriber resource name - not in plural (e.g.: user)
+:subscriber_id   -> The id of the subscriber
+
+Index
+
+Retrieves all non dismissed notifications for a given subscriber.
+
+Request
+GET /correspondent/:subscriber_type/:subscriber_id/notifications
+
+Response
+[
+    {
+        "id":20,
+        "title":"Purchase #1 for user user",
+        "content":"Congratulations on your recent purchase of purchase",
+        "image_url":"",
+        "dismissed":false,
+        "publisher_type":"Purchase",
+        "publisher_id":1,
+        "created_at":"2019-03-01T14:19:31.273Z",
+        "link_url":"/purchases/1"
+    }
+]
+
+Preview
+
+Returns total number of non dismissed notifications and the newest notification.
+
+Request
+GET /correspondent/:subscriber_type/:subscriber_id/notifications/preview
+
+Response
+{
+    "count": 3,
+    "notification": {
+        "id":20,
+        "title":"Purchase #1 for user user",
+        "content":"Congratulations on your recent purchase of purchase",
+        "image_url":"",
+        "dismissed":false,
+        "publisher_type":"Purchase",
+        "publisher_id":1,
+        "created_at":"2019-03-01T14:22:31.649Z",
+        "link_url":"/purchases/1"
+    }
+}
+
+
+Dismiss
+
+Dismisses a given notification.
+
+Resquest
+PUT /correspondent/:subscriber_type/:subscriber_id/notifications/:notification_id/dismiss
+
+Response
+STATUS no_content (204) 
 ```
 
 ## Contributing
