@@ -20,6 +20,8 @@ module Correspondent
       method_source = purchase.method(:refund).source
       assert method_source.include?("Correspondent <<")
       assert purchase.refund
+
+      assert_equal 2, ApplicationMailer.deliveries.count
     end
 
     test "#notifies for many to many" do
@@ -33,6 +35,8 @@ module Correspondent
       method_source = promotion.method(:promote).source
       assert method_source.include?("Correspondent <<")
       assert promotion.promote
+
+      assert_equal 0, ApplicationMailer.deliveries.count
     end
 
     test "#notifies when an error is raised" do
