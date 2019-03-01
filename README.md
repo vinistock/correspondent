@@ -78,6 +78,40 @@ class Purchase < ApplicationRecord
 end
 ```
 
+Correspondent can also trigger emails if desired. To trigger emails, the mailer class should be passed as an object and should implement a method follwing the naming convention.
+
+```ruby
+# app/models/purchase.rb
+
+class Purchase < ApplicationRecord
+  belongs_to :user
+  
+  # Pass the desired mailer in the `mailer:` option
+  notifies :user, :purchase, mailer: ApplicationMailer
+  
+  def purchase
+    # some business logic
+  end
+end
+
+# app/mailers/application_mailer.rb
+class ApplicationMailer < ActionMailer::Base
+  default from: 'from@example.com'
+  layout 'mailer'
+
+  # The mailer should implement methods following the naming convention of
+  # #{trigger}_email(triggering_instance)
+  # 
+  # In this case, the `trigger` is the method purchase, so Correspondent will look for
+  # the purchase_email method. It will always pass the instance that triggered the email
+  # as an argument. 
+  def purchase_email(purchase)
+    @purchase = purchase
+    mail(to: purchase.user.email, subject: "Congratulations on the purchase of #{purchase.name}")
+  end
+end 
+```
+
 ### Options
 
 The available options, their default values and their explanations are listed below.
@@ -86,6 +120,10 @@ The available options, their default values and their explanations are listed be
 # Avoid duplicates
 # Prevents creating new notifications if a non dismissed notification for the same publisher and same subscriber already exists
 notifies :some_resouce, :trigger, avoid_duplicates: false
+
+# Mailer
+# The Mailer class that implements the desired mailer triggers to send emails. Default is nil (doesn't send emails).
+notifies :some_resouce, :trigger, mailer: nil 
 ```
 
 ### JSON API
