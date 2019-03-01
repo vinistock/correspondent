@@ -8,6 +8,8 @@ module Correspondent
   # API for all notifications related
   # endpoints.
   class NotificationsController < ApplicationController
+    before_action :find_notification, only: %i[dismiss destroy]
+
     # index
     #
     # Returns all notifications for a given subscriber.
@@ -37,12 +39,24 @@ module Correspondent
     #
     # Dismisses a given notification.
     def dismiss
-      Correspondent::Notification.select(:id)
-                                 .where(id: params[:id])
-                                 .first
-                                 &.dismiss!
-
+      @notification&.dismiss!
       head(:no_content)
+    end
+
+    # destroy
+    #
+    # Destroys a given notification.
+    def destroy
+      @notification&.destroy
+      head(:no_content)
+    end
+
+    private
+
+    def find_notification
+      @notification = Correspondent::Notification.select(:id)
+                                                 .where(id: params[:id])
+                                                 .first
     end
   end
 end

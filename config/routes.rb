@@ -2,7 +2,7 @@
 
 Correspondent::Engine.routes.draw do
   scope path: ":subscriber_type/:subscriber_id" do
-    resources :notifications, only: %i[index] do
+    resources :notifications, only: %i[index destroy] do
       collection do
         get :preview
       end

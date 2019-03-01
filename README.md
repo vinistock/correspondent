@@ -152,7 +152,17 @@ Resquest
 PUT /correspondent/:subscriber_type/:subscriber_id/notifications/:notification_id/dismiss
 
 Response
-STATUS no_content (204) 
+STATUS no_content (204)
+
+Destroy
+
+Destroys a given notification.
+
+Resquest
+DELETE /correspondent/:subscriber_type/:subscriber_id/notifications/:notification_id
+
+Response
+STATUS no_content (204)
 ```
 
 ## Contributing
