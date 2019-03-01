@@ -43,5 +43,13 @@ module Correspondent
       assert_response :no_content
       assert Correspondent::Notification.find(@notification3.id).dismissed
     end
+
+    test "DELETE destroy" do
+      delete "/correspondent/user/#{@subscriber.id}/notifications/#{@notification3.id}",
+             headers: { accept: "application/json" }
+
+      assert_response :no_content
+      assert !Correspondent::Notification.where(id: @notification3.id).exists?
+    end
   end
 end
