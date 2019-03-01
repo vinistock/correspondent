@@ -65,15 +65,15 @@ module Correspondent # :nodoc:
   # runs and patches the original method.
   # If already patched, doesn't do anything (to avoid infinite loops).
 
-  # rubocop:disable Style/ClassVars,Metrics/MethodLength,Style/Next,Metrics/AbcSize
+  # rubocop:disable Metrics/MethodLength,Style/Next,Metrics/AbcSize
   def notifies(entity, triggers, options = {})
     triggers = [triggers] unless triggers.is_a?(Array)
 
     class_eval do
       # Save parameters for temporary class usage
-      @@entity = entity
-      @@triggers = triggers
-      @@options = options
+      @entity = entity
+      @triggers = triggers
+      @options = options
 
       # Method patching
       #
@@ -84,14 +84,14 @@ module Correspondent # :nodoc:
       # 4. Define method again invoking original implementation and
       #    inserting a new payload in the queue to be processed by the Fiber.
       def self.method_added(name)
-        @@triggers.each do |trigger|
+        @triggers.each do |trigger|
           if name == trigger && Correspondent.patched_methods.exclude?(trigger)
             original_method = instance_method(trigger)
             Correspondent.patched_methods << trigger
 
             undef_method(trigger)
-            entity = @@entity
-            options = @@options
+            entity = @entity
+            options = @options
 
             define_method trigger do |*args|
               original_method.bind(self).call(*args).tap do
@@ -108,7 +108,7 @@ module Correspondent # :nodoc:
       end
     end
   end
-  # rubocop:enable Style/ClassVars,Metrics/MethodLength,Style/Next,Metrics/AbcSize
+  # rubocop:enable Metrics/MethodLength,Style/Next,Metrics/AbcSize
 
   # ActiveRecord on load hook
   #
