@@ -25,9 +25,24 @@ module Correspondent # :nodoc:
           data = queue.shift
 
           Correspondent::Notification.create_for!(data.except(:options), data[:options])
+          trigger_email(data) if data[:options][:mailer]
+
           Fiber.yield if queue.empty?
         end
       end
+    end
+
+    # trigger_email
+    #
+    # Calls the method of a given mailer using the
+    # trigger. Triggering only happens if a mailer
+    # has been passed as an option.
+    #
+    # Will invoke methods in this manner:
+    #
+    # MyMailer.send("make_purchase_email", #<Purchase id: 1...>)
+    def trigger_email(data)
+      data[:options][:mailer].send("#{data[:trigger]}_email", data[:instance]).deliver_now
     end
 
     # queue
