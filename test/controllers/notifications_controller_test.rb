@@ -7,10 +7,11 @@ module Correspondent
     def setup
       @subscriber = User.create!(name: "user", email: "user@email.com")
       publisher = Purchase.create!(name: "purchase", user: @subscriber)
+      data = { instance: publisher, entity: :user, trigger: :purchase }
 
-      @notification1 = Correspondent::Notification.create_for!(publisher, :user, :purchase)
-      @notification2 = Correspondent::Notification.create_for!(publisher, :user, :purchase)
-      @notification3 = Correspondent::Notification.create_for!(publisher, :user, :purchase)
+      @notification1 = Correspondent::Notification.create_for!(data)
+      @notification2 = Correspondent::Notification.create_for!(data)
+      @notification3 = Correspondent::Notification.create_for!(data)
     end
 
     test "GET index" do

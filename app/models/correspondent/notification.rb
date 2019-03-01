@@ -29,11 +29,11 @@ module Correspondent
       # Creates notification(s) for the given
       # +instance+ of the publisher and given
       # +entity+ (subscriber).
-      def create_for!(instance, entity, trigger, options = {})
-        attributes = instance.to_notification(entity: entity, trigger: trigger)
-        attributes[:publisher] = instance
+      def create_for!(attrs, options = {})
+        attributes = attrs[:instance].to_notification(entity: attrs[:entity], trigger: attrs[:trigger])
+        attributes[:publisher] = attrs[:instance]
 
-        relation = instance.send(entity)
+        relation = attrs[:instance].send(attrs[:entity])
 
         if relation.respond_to?(:each)
           create_many!(attributes, relation, options)

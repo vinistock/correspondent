@@ -24,13 +24,7 @@ module Correspondent # :nodoc:
         loop do
           data = queue.shift
 
-          Correspondent::Notification.create_for!(
-            data[:instance],
-            data[:entity],
-            data[:trigger],
-            data[:options]
-          )
-
+          Correspondent::Notification.create_for!(data.except(:options), data[:options])
           Fiber.yield if queue.empty?
         end
       end
