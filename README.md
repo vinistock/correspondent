@@ -112,6 +112,22 @@ class ApplicationMailer < ActionMailer::Base
 end 
 ```
 
+To reference the created notifications in the desired model, use the following association:
+
+```ruby
+# app/models/purchase.rb
+
+class User < ApplicationRecord
+  has_many :purchases
+  has_many :notifications, class_name: "Correspondent::Notification", as: :subscriber
+end
+
+class Purchase < ApplicationRecord
+  belongs_to :user
+  has_many :notifications, class_name: "Correspondent::Notification", as: :publisher
+end
+```
+
 ### Options
 
 The available options, their default values and their explanations are listed below.
