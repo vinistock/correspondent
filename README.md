@@ -123,7 +123,11 @@ notifies :some_resouce, :trigger, avoid_duplicates: false
 
 # Mailer
 # The Mailer class that implements the desired mailer triggers to send emails. Default is nil (doesn't send emails).
-notifies :some_resouce, :trigger, mailer: nil 
+notifies :some_resouce, :trigger, mailer: nil
+
+# Email only
+# For preventing the creation of notifications and only trigger emails, add the email_only option
+notifies :some_resouce, :trigger, email_only: false
 ```
 
 ### JSON API

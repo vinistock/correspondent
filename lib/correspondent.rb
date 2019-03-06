@@ -24,8 +24,11 @@ module Correspondent # :nodoc:
         loop do
           data = queue.shift
 
-          Correspondent::Notification.create_for!(data.except(:options), data[:options])
-          trigger_email(data) if data[:options][:mailer]
+          unless data.dig(:options, :email_only)
+            Correspondent::Notification.create_for!(data.except(:options), data[:options])
+          end
+
+          trigger_email(data) if data.dig(:options, :mailer)
 
           Fiber.yield if queue.empty?
         end
@@ -42,7 +45,7 @@ module Correspondent # :nodoc:
     #
     # MyMailer.send("make_purchase_email", #<Purchase id: 1...>)
     def trigger_email(data)
-      data[:options][:mailer].send("#{data[:trigger]}_email", data[:instance]).deliver_now
+      data.dig(:options, :mailer).send("#{data[:trigger]}_email", data[:instance]).deliver_now
     end
 
     # queue

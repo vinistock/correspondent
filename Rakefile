@@ -44,7 +44,6 @@ task :all do
     "brakeman && "\
     "rake && "\
     "rubocop --parallel && "\
-    "rails_best_practices && "\
-    "(echo \"Running benchmarks\n\" && rake test:benchmark)"
+    "rails_best_practices"
   )
 end
