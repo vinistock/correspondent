@@ -8,11 +8,10 @@ module Correspondent # :nodoc:
 
     # patched_methods
     #
-    # List to keep track of methods that
-    # have been patched to insert notifications
-    # in the queue.
+    # Hash with information about methods
+    # that need to be patched.
     def patched_methods
-      @patched_methods ||= []
+      @patched_methods ||= {}.with_indifferent_access
     end
 
     # fiber
@@ -77,42 +76,36 @@ module Correspondent # :nodoc:
   # runs and patches the original method.
   # If already patched, doesn't do anything (to avoid infinite loops).
 
-  # rubocop:disable Metrics/MethodLength,Style/Next,Metrics/AbcSize
+  # rubocop:disable Metrics/MethodLength,Metrics/AbcSize
   def notifies(entity, triggers, options = {})
-    triggers = [triggers] unless triggers.is_a?(Array)
+    save_trigger_info(entity, triggers, options)
 
-    class_eval do
-      # Save parameters for temporary class usage
-      @entity = entity
-      @triggers = triggers
-      @options = options
+    unless method_defined?(:method_added)
+      class_eval do
+        # Method patching
+        #
+        # For each trigger method
+        # 1. Capture unbound instance method
+        # 2. Add it to patched methods to avoid trying to patch it again
+        # 3. Undefine it to avoid re-definition warnings
+        # 4. Define method again invoking original implementation and
+        #    inserting a new payload in the queue to be processed by the Fiber.
+        def self.method_added(name)
+          if Correspondent.patched_methods.key?(name)
+            original_method = instance_method(name)
+            undef_method(name)
+            patch_info = Correspondent.patched_methods.delete(name)
 
-      # Method patching
-      #
-      # For each trigger method
-      # 1. Capture unbound instance method
-      # 2. Add it to patched methods to avoid trying to patch it again
-      # 3. Undefine it to avoid re-definition warnings
-      # 4. Define method again invoking original implementation and
-      #    inserting a new payload in the queue to be processed by the Fiber.
-      def self.method_added(name)
-        @triggers.each do |trigger|
-          if name == trigger && Correspondent.patched_methods.exclude?(trigger)
-            original_method = instance_method(trigger)
-            Correspondent.patched_methods << trigger
-
-            undef_method(trigger)
-            entity = @entity
-            options = @options
-
-            define_method trigger do |*args|
+            define_method(name) do |*args|
               original_method.bind(self).call(*args).tap do
-                Correspondent << {
-                  instance: self,
-                  entity: entity,
-                  trigger: trigger,
-                  options: options
-                }
+                patch_info.each do |info|
+                  Correspondent << {
+                    instance: self,
+                    entity: info[:entity],
+                    trigger: name,
+                    options: info[:options]
+                  }
+                end
               end
             end
           end
@@ -120,7 +113,7 @@ module Correspondent # :nodoc:
       end
     end
   end
-  # rubocop:enable Metrics/MethodLength,Style/Next,Metrics/AbcSize
+  # rubocop:enable Metrics/MethodLength,Metrics/AbcSize
 
   # ActiveRecord on load hook
   #
@@ -128,5 +121,19 @@ module Correspondent # :nodoc:
   # model class methods are available.
   ActiveSupport.on_load(:active_record) do
     extend Correspondent
+  end
+
+  private
+
+  # save_trigger_info
+  #
+  # Saves trigger information in hash for future patching.
+  def save_trigger_info(entity, triggers, options)
+    triggers = [triggers] unless triggers.is_a?(Array)
+
+    triggers.each do |trigger|
+      Correspondent.patched_methods[trigger] ||= []
+      Correspondent.patched_methods[trigger] << { entity: entity, options: options }
+    end
   end
 end
