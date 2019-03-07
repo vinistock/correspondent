@@ -80,7 +80,7 @@ module Correspondent # :nodoc:
   def notifies(entity, triggers, options = {})
     save_trigger_info(entity, triggers, options)
 
-    unless method_defined?(:method_added)
+    unless methods(false).include?(:method_added)
       class_eval do
         # Method patching
         #
