@@ -8,7 +8,8 @@ module Correspondent
   class NotifiesPenaltyTest < ActiveSupport::TestCase
     test "it does not delay methods significantly" do
       user = User.create!(name: "user", email: "user@email.com")
-      purchase = Purchase.create!(name: "purchase", user: user)
+      store = Store.create!(name: "best buy")
+      purchase = Purchase.create!(name: "purchase", user: user, store: store)
 
       times_slower = how_many_times_slower do
         Benchmark.ips do |x|
@@ -24,7 +25,8 @@ module Correspondent
 
     test "the absolute delay time should be smaller than 1ms" do
       user = User.create!(name: "user", email: "user@email.com")
-      purchase = Purchase.create!(name: "purchase", user: user)
+      store = Store.create!(name: "best buy")
+      purchase = Purchase.create!(name: "purchase", user: user, store: store)
 
       patched_time = average_exec_time do
         purchase.purchase

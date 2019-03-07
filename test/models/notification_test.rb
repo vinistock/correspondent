@@ -4,30 +4,31 @@ require "test_helper"
 
 module Correspondent
   class NotificationTest < ActiveSupport::TestCase
+    def setup
+      @subscriber = User.create!(name: "user", email: "user@email.com")
+      store = Store.create!(name: "best buy")
+      @publisher = Purchase.create!(name: "purchase", user: @subscriber, store: store)
+    end
+
     test "accepts polymorphic association for publisher and subscriber" do
-      subscriber = User.create!(name: "user", email: "user@email.com")
-      publisher = Purchase.create!(name: "purchase", user: subscriber)
-      notification = Notification.create!(publisher: publisher, subscriber: subscriber)
+      notification = Notification.create!(publisher: @publisher, subscriber: @subscriber)
 
       assert notification.valid?
-      assert_equal publisher, notification.publisher
-      assert_equal subscriber, notification.subscriber
-      assert_includes subscriber.notifications, notification
-      assert_includes publisher.notifications, notification
+      assert_equal @publisher, notification.publisher
+      assert_equal @subscriber, notification.subscriber
+      assert_includes @subscriber.notifications, notification
+      assert_includes @publisher.notifications, notification
     end
 
     test ".create_for! single record" do
-      subscriber = User.create!(name: "user", email: "user@email.com")
-      publisher = Purchase.create!(name: "purchase", user: subscriber)
-
-      data = { instance: publisher, entity: :user, trigger: :purchase }
+      data = { instance: @publisher, entity: :user, trigger: :purchase }
       notification = Correspondent::Notification.create_for!(data)
 
       assert !notification.respond_to?(:each)
       assert notification.is_a?(Correspondent::Notification)
-      assert_equal publisher, notification.publisher
-      assert_equal subscriber, notification.subscriber
-      assert_equal "Purchase ##{publisher.id} for user user", notification.title
+      assert_equal @publisher, notification.publisher
+      assert_equal @subscriber, notification.subscriber
+      assert_equal "Purchase ##{@publisher.id} for user user", notification.title
       assert_equal "Congratulations on your recent purchase of purchase", notification.content
     end
 
@@ -51,10 +52,7 @@ module Correspondent
     end
 
     test ".create_for! with avoid duplicates" do
-      subscriber = User.create!(name: "user", email: "user@email.com")
-      publisher = Purchase.create!(name: "purchase", user: subscriber)
-
-      data = { instance: publisher, entity: :user, trigger: :purchase }
+      data = { instance: @publisher, entity: :user, trigger: :purchase }
       notification = Correspondent::Notification.create_for!(data)
       assert notification.is_a?(Correspondent::Notification)
 
@@ -63,20 +61,14 @@ module Correspondent
     end
 
     test ".by_parents" do
-      subscriber = User.create!(name: "user", email: "user@email.com")
-      publisher = Purchase.create!(name: "purchase", user: subscriber)
-
-      data = { instance: publisher, entity: :user, trigger: :purchase }
+      data = { instance: @publisher, entity: :user, trigger: :purchase }
       notification = Correspondent::Notification.create_for!(data)
 
-      assert_includes Correspondent::Notification.by_parents(subscriber, publisher), notification
+      assert_includes Correspondent::Notification.by_parents(@subscriber, @publisher), notification
     end
 
     test "#as_json" do
-      subscriber = User.create!(name: "user", email: "user@email.com")
-      publisher = Purchase.create!(name: "purchase", user: subscriber)
-
-      data = { instance: publisher, entity: :user, trigger: :purchase }
+      data = { instance: @publisher, entity: :user, trigger: :purchase }
       notification = Correspondent::Notification.create_for!(data)
 
       Rails.cache.delete(notification)
@@ -86,19 +78,13 @@ module Correspondent
     end
 
     test ".for_subscriber" do
-      subscriber = User.create!(name: "user", email: "user@email.com")
-      publisher = Purchase.create!(name: "purchase", user: subscriber)
-
-      data = { instance: publisher, entity: :user, trigger: :purchase }
+      data = { instance: @publisher, entity: :user, trigger: :purchase }
       notification = Correspondent::Notification.create_for!(data)
-      assert_includes Correspondent::Notification.for_subscriber("user", subscriber.id), notification
+      assert_includes Correspondent::Notification.for_subscriber("user", @subscriber.id), notification
     end
 
     test "#dismiss!" do
-      subscriber = User.create!(name: "user", email: "user@email.com")
-      publisher = Purchase.create!(name: "purchase", user: subscriber)
-
-      data = { instance: publisher, entity: :user, trigger: :purchase }
+      data = { instance: @publisher, entity: :user, trigger: :purchase }
       notification = Correspondent::Notification.create_for!(data)
       notification.dismiss!
 
@@ -106,10 +92,7 @@ module Correspondent
     end
 
     test ".not_dismissed" do
-      subscriber = User.create!(name: "user", email: "user@email.com")
-      publisher = Purchase.create!(name: "purchase", user: subscriber)
-
-      data = { instance: publisher, entity: :user, trigger: :purchase }
+      data = { instance: @publisher, entity: :user, trigger: :purchase }
       notification = Correspondent::Notification.create_for!(data)
       notification2 = Correspondent::Notification.create_for!(data)
       notification.dismiss!

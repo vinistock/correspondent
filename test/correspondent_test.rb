@@ -11,7 +11,8 @@ module Correspondent
 
     test "#notifies" do
       user = User.create!(name: "user", email: "user@email.com")
-      purchase = Purchase.create!(name: "purchase", user: user)
+      store = Store.create!(name: "best buy")
+      purchase = Purchase.create!(name: "purchase", user: user, store: store)
 
       method_source = purchase.method(:purchase).source
       assert method_source.include?("Correspondent <<")
@@ -22,6 +23,10 @@ module Correspondent
       assert purchase.refund
 
       assert_equal 2, ApplicationMailer.deliveries.count
+
+      assert_equal 1, store.notifications.count
+      assert_equal 1, user.notifications.count
+      assert_equal 2, purchase.notifications.count
     end
 
     test "#notifies for many to many" do
@@ -41,7 +46,8 @@ module Correspondent
 
     test "#notifies when an error is raised" do
       user = User.create!(name: "user", email: "user@email.com")
-      purchase = Purchase.create!(name: "purchase", user: user)
+      store = Store.create!(name: "best buy")
+      purchase = Purchase.create!(name: "purchase", user: user, store: store)
 
       raises_exception = -> { raise StandardError, "Test error" }
 

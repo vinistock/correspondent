@@ -6,7 +6,8 @@ module Correspondent
   class NotificationsControllerTest < ActionDispatch::IntegrationTest
     def setup
       @subscriber = User.create!(name: "user", email: "user@email.com")
-      publisher = Purchase.create!(name: "purchase", user: @subscriber)
+      store = Store.create!(name: "best buy")
+      publisher = Purchase.create!(name: "purchase", user: @subscriber, store: store)
       data = { instance: publisher, entity: :user, trigger: :purchase }
 
       @notification1 = Correspondent::Notification.create_for!(data)
