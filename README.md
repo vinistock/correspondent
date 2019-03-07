@@ -39,12 +39,20 @@ Notifications can easily be setup using Correspondent. The following example goe
 # app/models/purchase.rb 
 class Purchase < ApplicationRecord
   belongs_to :user
+  belongs_to :store
   
   # Notifies configuration
   # First argument is the subscriber (the one that receives a notification). Can be an NxN association as well (e.g.: users) which will create a notification for each associated record.
   # Second argument are the triggers (the method inside that model that triggers notifications). Can be an array of symbols for multiple triggers for the same entity.
   # Third argument are generic options as a hash 
   notifies :user, :purchase, avoid_duplicates: true
+  
+  # Many notifies definitions can be used for different subscribers
+  # In the following case, every time purchase is invoked the following will happen:
+  # 1. A notification will be created for `user` 
+  # 2. A notification will be created for `store`
+  # 3. An email will be triggered using the `StoreMailer` (invoking a method called purchase_email) 
+  notifies :store, :purchase, avoid_duplicates: true, mailer: StoreMailer
 
   # `notifies` will hook into the desired triggers.
   # Every time this method is invoked by an instance of Purchase
