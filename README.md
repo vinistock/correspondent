@@ -150,6 +150,8 @@ notifies :some_resouce, :trigger, email_only: false
 
 Correspondent exposes a few APIs to be used for handling notification logic in the application.
 
+All APIs use the `stale?` check. So if passing the If-None-Match header, the API will support returning 304 (not modified) if the collection hasn't changed. 
+
 ```json
 Parameters
 
