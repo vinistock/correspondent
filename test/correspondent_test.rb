@@ -23,6 +23,10 @@ module Correspondent
       assert purchase.refund
 
       assert_equal 2, ApplicationMailer.deliveries.count
+
+      assert_equal 1, store.notifications.count
+      assert_equal 1, user.notifications.count
+      assert_equal 2, purchase.notifications.count
     end
 
     test "#notifies for many to many" do
