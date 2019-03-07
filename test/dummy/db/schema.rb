@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_03_07_223149) do
+ActiveRecord::Schema.define(version: 2019_03_07_224854) do
 
   create_table "correspondent_notifications", force: :cascade do |t|
     t.string "title"
@@ -24,6 +24,7 @@ ActiveRecord::Schema.define(version: 2019_03_07_223149) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "link_url"
+    t.string "referrer_url"
     t.index ["publisher_type", "publisher_id"], name: "index_correspondent_on_publisher"
     t.index ["subscriber_type", "subscriber_id"], name: "index_correspondent_on_subscriber"
   end

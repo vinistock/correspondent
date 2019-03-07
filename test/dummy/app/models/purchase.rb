@@ -32,7 +32,8 @@ class Purchase < ApplicationRecord
       title: "Purchase ##{id} for #{entity} #{send(entity).name}",
       content: "Congratulations on your recent #{trigger} of #{name}",
       image_url: "",
-      link_url: "/purchases/#{id}"
+      link_url: "/purchases/#{id}",
+      referrer_url: "/stores/#{store.id}"
     }
   end
 end

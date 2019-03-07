@@ -80,7 +80,8 @@ class Purchase < ApplicationRecord
       title: "Purchase ##{id} for #{entity} #{send(entity).name}",
       content: "Congratulations on your recent #{trigger} of #{name}",
       image_url: "",
-      link_url: "/purchases/#{id}"
+      link_url: "/purchases/#{id}",
+      referrer_url: "/stores/#{store.id}"
     }
   end
 end
@@ -184,7 +185,8 @@ Response
         "publisher_type":"Purchase",
         "publisher_id":1,
         "created_at":"2019-03-01T14:19:31.273Z",
-        "link_url":"/purchases/1"
+        "link_url":"/purchases/1",
+        "referrer_url":"/stores/1"
     }
 ]
 
@@ -207,7 +209,8 @@ Response
         "publisher_type":"Purchase",
         "publisher_id":1,
         "created_at":"2019-03-01T14:22:31.649Z",
-        "link_url":"/purchases/1"
+        "link_url":"/purchases/1",
+        "referrer_url":"/stores/1"
     }
 }
 

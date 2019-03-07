@@ -5,6 +5,7 @@ class CreateCorrespondentNotifications < ActiveRecord::Migration<%= migration_ve
       t.string :content
       t.string :image_url
       t.string :link_url
+      t.string :referrer_url
       t.boolean :dismissed, default: false
       t.string :publisher_type, null: false
       t.integer :publisher_id, null: false

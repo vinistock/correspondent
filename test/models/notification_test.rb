@@ -30,6 +30,8 @@ module Correspondent
       assert_equal @subscriber, notification.subscriber
       assert_equal "Purchase ##{@publisher.id} for user user", notification.title
       assert_equal "Congratulations on your recent purchase of purchase", notification.content
+      assert_equal "/purchases/#{@publisher.id}", notification.link_url
+      assert_equal "/stores/#{@publisher.store.id}", notification.referrer_url
     end
 
     test ".create_for! multiple records" do
