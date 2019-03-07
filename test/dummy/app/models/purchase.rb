@@ -1,5 +1,6 @@
 class Purchase < ApplicationRecord
   belongs_to :user
+  belongs_to :store
   has_many :notifications, class_name: "Correspondent::Notification", as: :publisher
   notifies :user, %i[purchase], mailer: ApplicationMailer
   notifies :user, :refund, mailer: ApplicationMailer

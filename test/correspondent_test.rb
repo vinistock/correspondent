@@ -11,7 +11,8 @@ module Correspondent
 
     test "#notifies" do
       user = User.create!(name: "user", email: "user@email.com")
-      purchase = Purchase.create!(name: "purchase", user: user)
+      store = Store.create!(name: "best buy")
+      purchase = Purchase.create!(name: "purchase", user: user, store: store)
 
       method_source = purchase.method(:purchase).source
       assert method_source.include?("Correspondent <<")
@@ -41,7 +42,8 @@ module Correspondent
 
     test "#notifies when an error is raised" do
       user = User.create!(name: "user", email: "user@email.com")
-      purchase = Purchase.create!(name: "purchase", user: user)
+      store = Store.create!(name: "best buy")
+      purchase = Purchase.create!(name: "purchase", user: user, store: store)
 
       raises_exception = -> { raise StandardError, "Test error" }
 

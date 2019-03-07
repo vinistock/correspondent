@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_02_28_192922) do
+ActiveRecord::Schema.define(version: 2019_03_07_223149) do
 
   create_table "correspondent_notifications", force: :cascade do |t|
     t.string "title"
@@ -44,7 +44,13 @@ ActiveRecord::Schema.define(version: 2019_02_28_192922) do
     t.integer "user_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "store_id"
+    t.index ["store_id"], name: "index_purchases_on_store_id"
     t.index ["user_id"], name: "index_purchases_on_user_id"
+  end
+
+  create_table "stores", force: :cascade do |t|
+    t.string "name"
   end
 
   create_table "users", force: :cascade do |t|
