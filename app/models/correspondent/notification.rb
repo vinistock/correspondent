@@ -9,6 +9,7 @@ module Correspondent
     belongs_to :publisher, polymorphic: true
 
     validates_presence_of :publisher, :subscriber
+    before_destroy :delete_cache_entry
 
     scope :not_dismissed, -> { where(dismissed: false) }
     scope :by_parents, lambda { |subscriber, publisher|
@@ -69,13 +70,20 @@ module Correspondent
     private_class_method :create_many!, :create_single!
 
     def as_json(*)
-      Rails.cache.fetch(self) do
+      Rails.cache.fetch("correspondent_notification_#{id}") do
         attributes.except("updated_at", "subscriber_type", "subscriber_id")
       end
     end
 
     def dismiss!
+      delete_cache_entry
       update_attribute(:dismissed, true)
+    end
+
+    private
+
+    def delete_cache_entry
+      Rails.cache.delete("correspondent_notification_#{id}")
     end
   end
 end

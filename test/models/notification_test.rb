@@ -73,7 +73,7 @@ module Correspondent
       data = { instance: @publisher, entity: :user, trigger: :purchase }
       notification = Correspondent::Notification.create_for!(data)
 
-      Rails.cache.delete(notification)
+      Rails.cache.delete("correspondent_notification_#{notification.id}")
 
       assert_equal notification.attributes.except("updated_at", "subscriber_type", "subscriber_id"),
                    notification.as_json
