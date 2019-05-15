@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
 require "correspondent/engine"
+require "async"
 
 module Correspondent # :nodoc:
   class << self
-    attr_writer :patched_methods, :fiber, :queue
+    attr_writer :patched_methods
 
     # patched_methods
     #
@@ -12,26 +13,6 @@ module Correspondent # :nodoc:
     # that need to be patched.
     def patched_methods
       @patched_methods ||= {}.with_indifferent_access
-    end
-
-    # fiber
-    #
-    # Defines the fiber used for processing
-    # the notifications' queue in the background.
-    def fiber
-      @fiber ||= Fiber.new do
-        loop do
-          data = queue.shift
-
-          unless data.dig(:options, :email_only)
-            Correspondent::Notification.create_for!(data.except(:options), data[:options])
-          end
-
-          trigger_email(data) if data.dig(:options, :mailer)
-
-          Fiber.yield if queue.empty?
-        end
-      end
     end
 
     # trigger_email
@@ -47,21 +28,18 @@ module Correspondent # :nodoc:
       data.dig(:options, :mailer).send("#{data[:trigger]}_email", data[:instance]).deliver_now
     end
 
-    # queue
-    #
-    # List of payloads that need to be processed
-    # in the background for creating notifications.
-    def queue
-      @queue ||= []
-    end
-
     # <<
     #
-    # Define the << operator to insert +payload+
-    # into the queue and resume the Fiber processing.
-    def <<(payload)
-      queue << payload
-      fiber.resume
+    # Adds the notification creation and email sending
+    # as asynchronous tasks.
+    def <<(data)
+      Async do
+        unless data.dig(:options, :email_only)
+          Correspondent::Notification.create_for!(data.except(:options), data[:options])
+        end
+
+        trigger_email(data) if data.dig(:options, :mailer)
+      end
     end
   end
 
@@ -99,12 +77,14 @@ module Correspondent # :nodoc:
             define_method(name) do |*args|
               original_method.bind(self).call(*args).tap do
                 patch_info.each do |info|
-                  Correspondent << {
-                    instance: self,
-                    entity: info[:entity],
-                    trigger: name,
-                    options: info[:options]
-                  }
+                  Async do
+                    Correspondent << {
+                      instance: self,
+                      entity: info[:entity],
+                      trigger: name,
+                      options: info[:options]
+                    }
+                  end
                 end
               end
             end
