@@ -20,6 +20,7 @@ Gem::Specification.new do |spec|
                    "Rakefile",
                    "README.md"]
 
+  spec.add_dependency "async"
   spec.add_dependency "rails"
 
   spec.add_development_dependency "benchmark-ips"

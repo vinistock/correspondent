@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
 require "correspondent/engine"
+require "async"
 
 module Correspondent # :nodoc:
   class << self
-    attr_writer :patched_methods, :fiber, :queue
+    attr_writer :patched_methods
 
     # patched_methods
     #
@@ -12,26 +13,6 @@ module Correspondent # :nodoc:
     # that need to be patched.
     def patched_methods
       @patched_methods ||= {}.with_indifferent_access
-    end
-
-    # fiber
-    #
-    # Defines the fiber used for processing
-    # the notifications' queue in the background.
-    def fiber
-      @fiber ||= Fiber.new do
-        loop do
-          data = queue.shift
-
-          unless data.dig(:options, :email_only)
-            Correspondent::Notification.create_for!(data.except(:options), data[:options])
-          end
-
-          trigger_email(data) if data.dig(:options, :mailer)
-
-          Fiber.yield if queue.empty?
-        end
-      end
     end
 
     # trigger_email
@@ -47,28 +28,25 @@ module Correspondent # :nodoc:
       data.dig(:options, :mailer).send("#{data[:trigger]}_email", data[:instance]).deliver_now
     end
 
-    # queue
-    #
-    # List of payloads that need to be processed
-    # in the background for creating notifications.
-    def queue
-      @queue ||= []
-    end
-
     # <<
     #
-    # Define the << operator to insert +payload+
-    # into the queue and resume the Fiber processing.
-    def <<(payload)
-      queue << payload
-      fiber.resume
+    # Adds the notification creation and email sending
+    # as asynchronous tasks.
+    def <<(data)
+      Async do
+        unless data.dig(:options, :email_only)
+          Correspondent::Notification.create_for!(data.except(:options), data[:options])
+        end
+
+        trigger_email(data) if data.dig(:options, :mailer)
+      end
     end
   end
 
   # notifies
   #
-  # Hook to patch the desired method +triggers+
-  # to push notification creations into the queue.
+  # Hook to patch the desired methods +triggers+
+  # to asynchronously create notifications / emails.
   #
   # This will patch the methods +triggers+ to publish
   # notifications using the method_added callback.
@@ -89,7 +67,7 @@ module Correspondent # :nodoc:
         # 2. Add it to patched methods to avoid trying to patch it again
         # 3. Undefine it to avoid re-definition warnings
         # 4. Define method again invoking original implementation and
-        #    inserting a new payload in the queue to be processed by the Fiber.
+        #    inserting a new task in Async
         def self.method_added(name)
           if Correspondent.patched_methods.key?(name)
             original_method = instance_method(name)
@@ -97,8 +75,10 @@ module Correspondent # :nodoc:
             patch_info = Correspondent.patched_methods.delete(name)
 
             define_method(name) do |*args|
-              original_method.bind(self).call(*args).tap do
-                patch_info.each do |info|
+              original_method.bind(self).call(*args)
+
+              patch_info.each do |info|
+                Async do
                   Correspondent << {
                     instance: self,
                     entity: info[:entity],
