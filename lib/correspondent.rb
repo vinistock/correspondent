@@ -45,8 +45,8 @@ module Correspondent # :nodoc:
 
   # notifies
   #
-  # Hook to patch the desired method +triggers+
-  # to push notification creations into the queue.
+  # Hook to patch the desired methods +triggers+
+  # to asynchronously create notifications / emails.
   #
   # This will patch the methods +triggers+ to publish
   # notifications using the method_added callback.
@@ -67,7 +67,7 @@ module Correspondent # :nodoc:
         # 2. Add it to patched methods to avoid trying to patch it again
         # 3. Undefine it to avoid re-definition warnings
         # 4. Define method again invoking original implementation and
-        #    inserting a new payload in the queue to be processed by the Fiber.
+        #    inserting a new task in Async
         def self.method_added(name)
           if Correspondent.patched_methods.key?(name)
             original_method = instance_method(name)
@@ -75,16 +75,16 @@ module Correspondent # :nodoc:
             patch_info = Correspondent.patched_methods.delete(name)
 
             define_method(name) do |*args|
-              original_method.bind(self).call(*args).tap do
-                patch_info.each do |info|
-                  Async do
-                    Correspondent << {
-                      instance: self,
-                      entity: info[:entity],
-                      trigger: name,
-                      options: info[:options]
-                    }
-                  end
+              original_method.bind(self).call(*args)
+
+              patch_info.each do |info|
+                Async do
+                  Correspondent << {
+                    instance: self,
+                    entity: info[:entity],
+                    trigger: name,
+                    options: info[:options]
+                  }
                 end
               end
             end
