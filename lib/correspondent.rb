@@ -4,6 +4,17 @@ require "correspondent/engine"
 require "async"
 
 module Correspondent # :nodoc:
+  INSERTION_LAMBDA = lambda { |info, name, instance|
+    Async do
+      Correspondent << {
+        instance: instance,
+        entity: info[:entity],
+        trigger: name,
+        options: info[:options]
+      }
+    end
+  }.freeze
+
   class << self
     attr_writer :patched_methods
 
@@ -76,17 +87,7 @@ module Correspondent # :nodoc:
 
             define_method(name) do |*args|
               original_method.bind(self).call(*args)
-
-              patch_info.each do |info|
-                Async do
-                  Correspondent << {
-                    instance: self,
-                    entity: info[:entity],
-                    trigger: name,
-                    options: info[:options]
-                  }
-                end
-              end
+              patch_info.each { |info| Correspondent::INSERTION_LAMBDA.call(info, name, self) }
             end
           end
         end
