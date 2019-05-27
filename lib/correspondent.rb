@@ -74,8 +74,8 @@ module Correspondent # :nodoc:
             undef_method(name)
             patch_info = Correspondent.patched_methods.delete(name)
 
-            define_method(name) do |*args|
-              original_method.bind(self).call(*args)
+            define_method(name) do |*args, &block|
+              original_method.bind(self).call(*args, &block)
 
               patch_info.each do |info|
                 Async do

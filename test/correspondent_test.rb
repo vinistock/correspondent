@@ -16,7 +16,7 @@ module Correspondent
 
       method_source = purchase.method(:purchase).source
       assert method_source.include?("Correspondent <<")
-      assert purchase.purchase
+      assert(purchase.purchase { 5**5 })
 
       method_source = purchase.method(:refund).source
       assert method_source.include?("Correspondent <<")
