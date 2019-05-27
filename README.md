@@ -137,6 +137,8 @@ class Purchase < ApplicationRecord
 end
 ```
 
+If a specific column is not needed for your project, remove them from the generated migrations and don't return the respective attribute inside the to_notification method. 
+
 ### Options
 
 The available options, their default values and their explanations are listed below.
