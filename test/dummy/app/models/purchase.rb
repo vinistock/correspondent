@@ -6,6 +6,7 @@ class Purchase < ApplicationRecord
   notifies :store, :refund, mailer: ApplicationMailer
 
   def purchase
+    yield if block_given?
     true
   end
 
