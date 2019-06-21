@@ -57,35 +57,34 @@ module Correspondent # :nodoc:
   # rubocop:disable Metrics/MethodLength,Metrics/AbcSize
   def notifies(entity, triggers, options = {})
     save_trigger_info(entity, triggers, options)
+    return if methods(false).include?(:method_added)
 
-    unless methods(false).include?(:method_added)
-      class_eval do
-        # Method patching
-        #
-        # For each trigger method
-        # 1. Capture unbound instance method
-        # 2. Add it to patched methods to avoid trying to patch it again
-        # 3. Undefine it to avoid re-definition warnings
-        # 4. Define method again invoking original implementation and
-        #    inserting a new task in Async
-        def self.method_added(name)
-          if Correspondent.patched_methods.key?(name)
-            original_method = instance_method(name)
-            undef_method(name)
-            patch_info = Correspondent.patched_methods.delete(name)
+    class_eval do
+      # Method patching
+      #
+      # For each trigger method
+      # 1. Capture unbound instance method
+      # 2. Add it to patched methods to avoid trying to patch it again
+      # 3. Undefine it to avoid re-definition warnings
+      # 4. Define method again invoking original implementation and
+      #    inserting a new task in Async
+      def self.method_added(name)
+        if Correspondent.patched_methods.key?(name)
+          original_method = instance_method(name)
+          undef_method(name)
+          patch_info = Correspondent.patched_methods.delete(name)
 
-            define_method(name) do |*args, &block|
-              original_method.bind(self).call(*args, &block)
+          define_method(name) do |*args|
+            original_method.bind(self).call(*args)
 
-              patch_info.each do |info|
-                Async do
-                  Correspondent << {
-                    instance: self,
-                    entity: info[:entity],
-                    trigger: name,
-                    options: info[:options]
-                  }
-                end
+            patch_info.each do |info|
+              Async do
+                Correspondent << {
+                  instance: self,
+                  entity: info[:entity],
+                  trigger: name,
+                  options: info[:options]
+                }
               end
             end
           end
