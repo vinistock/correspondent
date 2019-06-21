@@ -55,8 +55,7 @@ module Correspondent
 
     def find_notification
       @notification = Correspondent::Notification.select(:id)
-                                                 .where(id: params[:id])
-                                                 .first
+                                                 .find_by(id: params[:id])
     end
   end
 end
