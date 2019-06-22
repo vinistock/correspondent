@@ -2,8 +2,8 @@ class Purchase < ApplicationRecord
   belongs_to :user
   belongs_to :store
   has_many :notifications, class_name: "Correspondent::Notification", as: :publisher
-  notifies :user, %i[purchase], mailer: ApplicationMailer
-  notifies :store, :refund, mailer: ApplicationMailer
+  notifies :user, %i[purchase], mailer: ApplicationMailer, if: :must_be_notified?
+  notifies :store, :refund, mailer: ApplicationMailer, unless: -> { !must_be_notified? }
 
   def purchase
     yield if block_given?
@@ -36,5 +36,11 @@ class Purchase < ApplicationRecord
       link_url: "/purchases/#{id}",
       referrer_url: "/stores/#{store.id}"
     }
+  end
+
+  private
+
+  def must_be_notified?
+    true
   end
 end

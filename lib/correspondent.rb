@@ -41,6 +41,30 @@ module Correspondent # :nodoc:
         trigger_email(data) if data.dig(:options, :mailer)
       end
     end
+
+    # should_notify?
+    #
+    # Evaluates the if and unless options within
+    # the context of a model instance.
+    def should_notify?(context, opt)
+      if opt[:if].present?
+        evaluate_conditional(context, opt[:if])
+      elsif opt[:unless].present?
+        !evaluate_conditional(context, opt[:unless])
+      end
+    end
+
+    # evaluate_conditional
+    #
+    # Evaluates if or unless regardless of
+    # whether it is a proc or a symbol.
+    def evaluate_conditional(context, if_or_unless)
+      if if_or_unless.is_a?(Proc)
+        context.instance_exec(&if_or_unless)
+      else
+        context.method(if_or_unless).call
+      end
+    end
   end
 
   # notifies
@@ -78,6 +102,8 @@ module Correspondent # :nodoc:
             original_method.bind(self).call(*args)
 
             patch_info.each do |info|
+              next unless Correspondent.should_notify?(self, info[:options])
+
               Async do
                 Correspondent << {
                   instance: self,
