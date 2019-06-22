@@ -155,6 +155,13 @@ notifies :some_resouce, :trigger, mailer: nil
 # Email only
 # For preventing the creation of notifications and only trigger emails, add the email_only option
 notifies :some_resouce, :trigger, email_only: false
+
+# Conditionals
+# If or unless options can be passed either as procs/lambdas or symbols representing the name of a method
+# These will be evaluated in an instance context, every time trigger is invoked 
+notifies :some_resource, :trigger, if: :should_be_notified?
+
+notifies :some_resource, :trigger, unless: -> { should_be_notified? && is_eligible? }
 ```
 
 ### JSON API
