@@ -8,7 +8,7 @@ module Correspondent
     belongs_to :subscriber, polymorphic: true
     belongs_to :publisher, polymorphic: true
 
-    validates_presence_of :publisher, :subscriber
+    validates :publisher, :subscriber, presence: true
     before_destroy :delete_cache_entry
 
     scope :not_dismissed, -> { where(dismissed: false) }
@@ -77,7 +77,7 @@ module Correspondent
 
     def dismiss!
       delete_cache_entry
-      update_attribute(:dismissed, true)
+      update!(dismissed: true)
     end
 
     private

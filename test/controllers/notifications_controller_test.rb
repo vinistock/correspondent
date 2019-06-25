@@ -51,7 +51,7 @@ module Correspondent
              headers: { accept: "application/json" }
 
       assert_response :no_content
-      assert !Correspondent::Notification.where(id: @notification3.id).exists?
+      assert_not Correspondent::Notification.where(id: @notification3.id).exists?
     end
   end
 end
