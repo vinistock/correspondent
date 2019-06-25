@@ -24,7 +24,7 @@ module Correspondent
       data = { instance: @publisher, entity: :user, trigger: :purchase }
       notification = Correspondent::Notification.create_for!(data)
 
-      assert !notification.respond_to?(:each)
+      assert_not notification.respond_to?(:each)
       assert notification.is_a?(Correspondent::Notification)
       assert_equal @publisher, notification.publisher
       assert_equal @subscriber, notification.subscriber
