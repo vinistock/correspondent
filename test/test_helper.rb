@@ -29,6 +29,8 @@ end
 
 module ActiveSupport
   class TestCase
+    parallelize(workers: :number_of_processors)
+
     def setup
       ApplicationMailer.deliveries = []
     end
