@@ -35,7 +35,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rubocop-performance"
   spec.add_development_dependency "rubocop-rails"
   spec.add_development_dependency "ruby-prof"
-  spec.add_development_dependency "simplecov", "~> 0.16.1"
+  spec.add_development_dependency "simplecov", "~> 0.17.0"
   spec.add_development_dependency "sqlite3", "< 1.4.0"
 end
 # rubocop:enable Metrics/BlockLength
