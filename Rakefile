@@ -43,7 +43,7 @@ task :all do
   system(
     "brakeman && "\
     "rake && "\
-    "rubocop --parallel && "\
+    "rubocop --auto-correct && "\
     "rails_best_practices"
   )
 end
