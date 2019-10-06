@@ -26,16 +26,14 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "benchmark-ips"
   spec.add_development_dependency "brakeman"
   spec.add_development_dependency "bundler"
-  spec.add_development_dependency "byebug"
   spec.add_development_dependency "codeclimate-test-reporter", "~> 1.0"
   spec.add_development_dependency "minitest"
   spec.add_development_dependency "purdytest"
   spec.add_development_dependency "rails_best_practices"
   spec.add_development_dependency "rubocop"
+  spec.add_development_dependency "rubocop-minitest"
   spec.add_development_dependency "rubocop-performance"
   spec.add_development_dependency "rubocop-rails"
-  spec.add_development_dependency "ruby-prof"
   spec.add_development_dependency "simplecov", "~> 0.17.0"
-  spec.add_development_dependency "sqlite3"
 end
 # rubocop:enable Metrics/BlockLength
