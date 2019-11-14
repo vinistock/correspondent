@@ -15,11 +15,11 @@ module Correspondent
       purchase = Purchase.create!(name: "purchase", user: user, store: store)
 
       method_source = purchase.method(:purchase).source
-      assert method_source.include?("Correspondent <<")
+      assert_includes(method_source, "Correspondent <<")
       assert(purchase.purchase { 5**5 })
 
       method_source = purchase.method(:refund).source
-      assert method_source.include?("Correspondent <<")
+      assert_includes(method_source, "Correspondent <<")
       assert purchase.refund
 
       assert_equal 2, ApplicationMailer.deliveries.count
@@ -38,7 +38,7 @@ module Correspondent
       promotion = Promotion.create!(users: users, name: "promo")
 
       method_source = promotion.method(:promote).source
-      assert method_source.include?("Correspondent <<")
+      assert_includes(method_source, "Correspondent <<")
       assert promotion.promote
 
       assert_equal 0, ApplicationMailer.deliveries.count
