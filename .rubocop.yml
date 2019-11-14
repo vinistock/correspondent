@@ -8,6 +8,7 @@ AllCops:
     - test/dummy/**/*
     - coverage/**/*
     - lib/generators/**/templates/*
+    - vendor/bundle/**/*
 
 Rails:
   Enabled: true

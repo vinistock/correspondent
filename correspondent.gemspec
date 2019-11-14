@@ -26,7 +26,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "benchmark-ips"
   spec.add_development_dependency "brakeman"
   spec.add_development_dependency "bundler"
-  spec.add_development_dependency "codeclimate-test-reporter", "~> 1.0"
   spec.add_development_dependency "minitest"
   spec.add_development_dependency "purdytest"
   spec.add_development_dependency "rails_best_practices"
