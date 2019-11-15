@@ -18,16 +18,6 @@ class Purchase < ApplicationRecord
     .reduce(:+)
   end
 
-  # :nocov:
-  def dummy
-    (1..1000)
-    .map { |i| i**2 }
-    .reverse
-    .uniq
-    .reduce(:+)
-  end
-  # :nocov:
-
   def to_notification(entity:, trigger:)
     {
       title: "Purchase ##{id} for #{entity} #{send(entity).name}",

@@ -4,6 +4,8 @@ require "correspondent/engine"
 require "async"
 
 module Correspondent # :nodoc:
+  LAMBDA_PROC_REGEX = /(->.*})|(->.*end)|(proc.*})|(proc.*end)|(Proc\.new.*})|(Proc\.new.*end)/.freeze
+
   class << self
     attr_writer :patched_methods
 
@@ -69,56 +71,37 @@ module Correspondent # :nodoc:
 
   # notifies
   #
-  # Hook to patch the desired methods +triggers+
-  # to asynchronously create notifications / emails.
-  #
-  # This will patch the methods +triggers+ to publish
-  # notifications using the method_added callback.
-  # Upon each +triggers+ method definition, the callback
-  # runs and patches the original method.
-  # If already patched, doesn't do anything (to avoid infinite loops).
-
-  # rubocop:disable Metrics/MethodLength,Metrics/AbcSize
+  # Save trigger info and options into the patched_methods
+  # hash.
   def notifies(entity, triggers, options = {})
-    save_trigger_info(entity, triggers, options)
-    return if methods(false).include?(:method_added)
+    triggers = [triggers] unless triggers.is_a?(Array)
 
-    class_eval do
-      # Method patching
-      #
-      # For each trigger method
-      # 1. Capture unbound instance method
-      # 2. Add it to patched methods to avoid trying to patch it again
-      # 3. Undefine it to avoid re-definition warnings
-      # 4. Define method again invoking original implementation and
-      #    inserting a new task in Async
-      def self.method_added(name)
-        if Correspondent.patched_methods.key?(name)
-          original_method = instance_method(name)
-          undef_method(name)
-          patch_info = Correspondent.patched_methods.delete(name)
-
-          define_method(name) do |*args|
-            original_method.bind(self).call(*args)
-
-            patch_info.each do |info|
-              next unless Correspondent.should_notify?(self, info[:options])
-
-              Async do
-                Correspondent << {
-                  instance: self,
-                  entity: info[:entity],
-                  trigger: name,
-                  options: info[:options]
-                }
-              end
-            end
-          end
-        end
-      end
+    triggers.each do |trigger|
+      Correspondent.patched_methods[trigger] ||= []
+      Correspondent.patched_methods[trigger] << { entity: entity, options: options }
     end
   end
-  # rubocop:enable Metrics/MethodLength,Metrics/AbcSize
+
+  # method_added
+  #
+  # Callback to patch methods once they are defined.
+  # 1. Create an alias of the original method
+  # 2. Override method by calling the original
+  # 3. Add Correspondent calls for notifications
+  def method_added(name)
+    patch_info = Correspondent.patched_methods.delete(name)
+    return unless patch_info
+
+    class_eval(<<~PATCH, __FILE__, __LINE__ + 1)
+      alias_method :original_#{name}, :#{name}
+
+      def #{name}(*args, &block)
+        result = original_#{name}(*args, &block)
+        #{build_async_calls(patch_info, name)}
+        result
+      end
+    PATCH
+  end
 
   # ActiveRecord on load hook
   #
@@ -130,15 +113,43 @@ module Correspondent # :nodoc:
 
   private
 
-  # save_trigger_info
+  # build_async_calls
   #
-  # Saves trigger information in hash for future patching.
-  def save_trigger_info(entity, triggers, options)
-    triggers = [triggers] unless triggers.is_a?(Array)
+  # Builds all async call strings needed
+  # to patch the method.
+  def build_async_calls(patch_info, name) # rubocop:disable Metrics/AbcSize
+    patch_info.map do |info|
+      info[:options][:unless] = stringify_lambda(info[:options][:unless]) if info[:options][:unless].is_a?(Proc)
+      info[:options][:if] = stringify_lambda(info[:options][:if]) if info[:options][:if].is_a?(Proc)
 
-    triggers.each do |trigger|
-      Correspondent.patched_methods[trigger] ||= []
-      Correspondent.patched_methods[trigger] << { entity: entity, options: options }
-    end
+      async_call_string(info, name)
+    end.join("\n")
+  end
+
+  # async_call_string
+  #
+  # Builds the string for an Async call
+  # to send data to Correspondent callbacks.
+  def async_call_string(info, name)
+    <<~ASYNC_CALL
+      if Correspondent.should_notify?(self, #{info[:options].to_s.delete('"')})
+        Async do
+          Correspondent << {
+            instance: self,
+            entity: :#{info[:entity]},
+            trigger: :#{name},
+            options: #{info[:options].to_s.delete('"')}
+          }
+        end
+      end
+    ASYNC_CALL
+  end
+
+  # stringify_lambda
+  #
+  # Transform lambda into a string to be used
+  # in method patching.
+  def stringify_lambda(lambda)
+    lambda.source.scan(LAMBDA_PROC_REGEX).flatten.compact.first
   end
 end

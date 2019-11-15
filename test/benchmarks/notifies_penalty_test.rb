@@ -14,8 +14,8 @@ module Correspondent
       times_slower = how_many_times_slower do
         Benchmark.ips do |x|
           x.config(time: 5, warmup: 2)
-          x.report("non-patched") { purchase.dummy }
-          x.report("patched") { purchase.purchase }
+          x.report("non-patched") { purchase.original_refund }
+          x.report("patched") { purchase.refund }
           x.compare!
         end
       end
@@ -29,11 +29,11 @@ module Correspondent
       purchase = Purchase.create!(name: "purchase", user: user, store: store)
 
       patched_time = average_exec_time do
-        purchase.purchase
+        purchase.refund
       end
 
       normal_time = average_exec_time do
-        purchase.dummy
+        purchase.original_refund
       end
 
       puts "Patched method is #{(patched_time - normal_time).round(4)}s slower"
