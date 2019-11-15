@@ -1,16 +1,16 @@
 # frozen_string_literal: true
 
 ENV["RAILS_ENV"] = "test"
-
+require_relative "../test/dummy/config/environment"
 require "simplecov"
-SimpleCov.start
+SimpleCov.start do
+  add_filter("/test/")
+end
 
 unless ENV["ON_CI"].nil?
   require "codecov"
   SimpleCov.formatter = SimpleCov::Formatter::Codecov
 end
-
-require_relative "../test/dummy/config/environment"
 
 ActiveRecord::Migrator.migrations_paths = [
   File.expand_path("../test/dummy/db/migrate", __dir__),

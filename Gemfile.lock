@@ -211,7 +211,7 @@ DEPENDENCIES
   rubocop-performance
   rubocop-rails
   ruby-prof
-  simplecov (~> 0.17.0)
+  simplecov
   sqlite3
 
 BUNDLED WITH
