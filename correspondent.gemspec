@@ -3,8 +3,6 @@
 $LOAD_PATH.push File.expand_path("lib", __dir__)
 
 require "correspondent/version"
-
-# rubocop:disable Metrics/BlockLength
 Gem::Specification.new do |spec|
   spec.name        = "correspondent"
   spec.version     = Correspondent::VERSION
@@ -35,4 +33,3 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rubocop-rails"
   spec.add_development_dependency "simplecov", "~> 0.17.0"
 end
-# rubocop:enable Metrics/BlockLength

@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/vinistock/correspondent.svg?branch=master)](https://travis-ci.com/vinistock/correspondent) [![codecov](https://codecov.io/gh/vinistock/correspondent/branch/master/graph/badge.svg)](https://codecov.io/gh/vinistock/correspondent) [![Gem Version](https://badge.fury.io/rb/correspondent.svg)](https://badge.fury.io/rb/correspondent) ![](http://ruby-gem-downloads-badge.herokuapp.com/correspondent?color=brightgreen&type=total)
+[![Build Status](https://github.com/vinistock/correspondent/workflows/Ruby%20on%20Rails/badge.svg?branch=master)](https://github.com/vinistock/correspondent/actions) [![codecov](https://codecov.io/gh/vinistock/correspondent/branch/master/graph/badge.svg)](https://codecov.io/gh/vinistock/correspondent) [![Gem Version](https://badge.fury.io/rb/correspondent.svg)](https://badge.fury.io/rb/correspondent) ![](http://ruby-gem-downloads-badge.herokuapp.com/correspondent?color=brightgreen&type=total)
 
 # Correspondent
 
