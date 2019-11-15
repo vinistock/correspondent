@@ -74,8 +74,10 @@ GEM
     byebug (11.0.1)
     code_analyzer (0.4.8)
       sexp_processor
-    codeclimate-test-reporter (1.0.7)
+    codecov (0.1.16)
+      json
       simplecov
+      url
     concurrent-ruby (1.1.5)
     console (1.5.0)
     crass (1.0.5)
@@ -184,6 +186,7 @@ GEM
     tzinfo (1.2.5)
       thread_safe (~> 0.1)
     unicode-display_width (1.6.0)
+    url (0.3.2)
     websocket-driver (0.7.1)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.4)
@@ -198,7 +201,7 @@ DEPENDENCIES
   brakeman
   bundler
   byebug
-  codeclimate-test-reporter (~> 1.0)
+  codecov
   correspondent!
   minitest
   purdytest

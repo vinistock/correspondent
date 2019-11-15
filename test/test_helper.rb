@@ -5,6 +5,11 @@ ENV["RAILS_ENV"] = "test"
 require "simplecov"
 SimpleCov.start
 
+unless ENV["ON_CI"].nil?
+  require "codecov"
+  SimpleCov.formatter = SimpleCov::Formatter::Codecov
+end
+
 require_relative "../test/dummy/config/environment"
 
 ActiveRecord::Migrator.migrations_paths = [
