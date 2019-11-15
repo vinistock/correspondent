@@ -5,7 +5,7 @@ ENV["RAILS_ENV"] = "test"
 require "simplecov"
 SimpleCov.start
 
-if ENV["ON_CI"].present?
+unless ENV["ON_CI"].nil?
   require "codecov"
   SimpleCov.formatter = SimpleCov::Formatter::Codecov
 end
