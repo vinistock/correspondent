@@ -69,7 +69,7 @@ GEM
       nio4r (~> 2.3)
       timers (~> 4.1)
     benchmark-ips (2.7.2)
-    brakeman (4.7.1)
+    brakeman (4.7.2)
     builder (3.2.3)
     byebug (11.0.1)
     code_analyzer (0.4.8)
