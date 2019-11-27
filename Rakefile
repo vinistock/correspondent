@@ -39,7 +39,7 @@ namespace :test do
   end
 end
 
-task :all do
+task all: :environment do
   system(
     "brakeman && "\
     "rake && "\
