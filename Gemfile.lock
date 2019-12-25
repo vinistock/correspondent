@@ -159,7 +159,7 @@ GEM
       unicode-display_width (>= 1.4.0, < 1.7)
     rubocop-minitest (0.5.0)
       rubocop (>= 0.74)
-    rubocop-performance (1.5.1)
+    rubocop-performance (1.5.2)
       rubocop (>= 0.71.0)
     rubocop-rails (2.4.0)
       rack (>= 1.1)
