@@ -7,17 +7,17 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        ruby_version: [2.5.x, 2.6.x]
+        ruby_version: [2.5, 2.6, 2.7, jruby]
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - name: Cache
-        uses: actions/cache@v1.0.1
+        uses: actions/cache@v1.1.2
         with:
           path: vendor/bundle
           key: ${{ matrix.ruby_version }}
       - name: Set up Ruby
-        uses: actions/setup-ruby@v1.0.2
+        uses: ruby/setup-ruby@v1.14
         with:
           ruby-version: ${{ matrix.ruby_version }}
       - name: Build and test with Rake
