@@ -17,7 +17,7 @@ jobs:
           path: vendor/bundle
           key: ${{ matrix.ruby_version }}
       - name: Set up Ruby
-        uses: ruby/setup-ruby@v1.14
+        uses: ruby/setup-ruby@v1.14.0
         with:
           ruby-version: ${{ matrix.ruby_version }}
       - name: Build and test with Rake
