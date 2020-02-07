@@ -28,6 +28,21 @@ module Correspondent
         migration_template "create_correspondent_notifications.rb",
                            "db/migrate/create_correspondent_notifications.rb",
                            migration_version: migration_version
+
+        say "\n"
+        say <<~POST_INSTALL_MESSAGE
+          Make sure to edit the generated migration and adapt the notifications
+          attributes according to the application's need. The only attributes
+          that must be kept are the one listed below and the indices.
+
+          Any other desired attributes can be added and then referenced in the
+          `to_notification` method.
+
+            publisher_type
+            publisher_id
+            subscriber_type
+            subscriber_id
+        POST_INSTALL_MESSAGE
       end
 
       def migration_version
