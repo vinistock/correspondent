@@ -64,7 +64,7 @@ GEM
       tzinfo (~> 1.1)
       zeitwerk (~> 2.2)
     ast (2.4.0)
-    async (1.25.0)
+    async (1.25.2)
       console (~> 1.0)
       nio4r (~> 2.3)
       timers (~> 4.1)
