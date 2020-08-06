@@ -34,7 +34,7 @@ module Correspondent
 
       assert_response :ok
       assert_equal body["notification"]["id"], @notification3.id
-      assert_equal body["count"], 3
+      assert_equal(3, body["count"])
       assert_includes response.headers, "eTag"
     end
 
@@ -51,7 +51,7 @@ module Correspondent
              headers: { accept: "application/json" }
 
       assert_response :no_content
-      assert_not Correspondent::Notification.where(id: @notification3.id).exists?
+      assert_not Correspondent::Notification.exists?(id: @notification3.id)
     end
   end
 end

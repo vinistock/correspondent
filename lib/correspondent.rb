@@ -74,7 +74,7 @@ module Correspondent # :nodoc:
   # Save trigger info and options into the patched_methods
   # hash.
   def notifies(entity, triggers, options = {})
-    triggers = [triggers] unless triggers.is_a?(Array)
+    triggers = Array(triggers)
 
     triggers.each do |trigger|
       Correspondent.patched_methods[trigger] ||= []
