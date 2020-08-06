@@ -18,6 +18,7 @@ Gem::Specification.new do |spec|
                    "Rakefile",
                    "README.md"]
 
+  spec.required_ruby_version = ">= 2.4.0"
   spec.add_dependency "async"
   spec.add_dependency "rails"
 
