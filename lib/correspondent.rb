@@ -101,6 +101,8 @@ module Correspondent # :nodoc:
         result
       end
     PATCH
+
+    super
   end
 
   # ActiveRecord on load hook
