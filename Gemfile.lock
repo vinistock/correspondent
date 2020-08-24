@@ -74,11 +74,9 @@ GEM
     byebug (11.1.3)
     code_analyzer (0.5.1)
       sexp_processor
-    codecov (0.2.6)
-      colorize
+    codecov (0.2.8)
       json
       simplecov
-    colorize (0.8.1)
     concurrent-ruby (1.1.6)
     console (1.8.2)
     crass (1.0.6)
