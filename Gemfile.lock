@@ -155,7 +155,7 @@ GEM
       activesupport (>= 4.2.0)
       rack (>= 1.1)
       rubocop (>= 0.87.0)
-    ruby-prof (1.4.1)
+    ruby-prof (1.4.2)
     ruby-progressbar (1.10.1)
     sexp_processor (4.14.1)
     simplecov (0.18.5)
