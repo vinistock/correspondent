@@ -62,7 +62,7 @@ end
 # Calculate average execution time
 # for a given block.
 def average_exec_time(&block)
-  (0...1000).map do
+  (0...1000).sum do
     Benchmark.measure(&block).real
-  end.sum / 1000
+  end / 1000
 end
