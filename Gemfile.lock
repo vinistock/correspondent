@@ -51,7 +51,7 @@ GEM
       tzinfo (~> 1.1)
     arel (9.0.0)
     ast (2.4.1)
-    async (1.28.0)
+    async (1.28.1)
       console (~> 1.10)
       nio4r (~> 2.3)
       timers (~> 4.1)
