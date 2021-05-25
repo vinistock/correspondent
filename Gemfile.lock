@@ -55,7 +55,7 @@ GEM
       console (~> 1.10)
       nio4r (~> 2.3)
       timers (~> 4.1)
-    benchmark-ips (2.9.0)
+    benchmark-ips (2.9.1)
     brakeman (5.0.1)
     builder (3.2.4)
     byebug (11.1.3)
