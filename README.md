@@ -1,5 +1,3 @@
-[![Build Status](https://github.com/vinistock/correspondent/workflows/Ruby%20on%20Rails/badge.svg?branch=master)](https://github.com/vinistock/correspondent/actions) [![codecov](https://codecov.io/gh/vinistock/correspondent/branch/master/graph/badge.svg)](https://codecov.io/gh/vinistock/correspondent) [![Gem Version](https://badge.fury.io/rb/correspondent.svg)](https://badge.fury.io/rb/correspondent) ![](http://ruby-gem-downloads-badge.herokuapp.com/correspondent?color=brightgreen&type=total)
-
 # Correspondent
 
 Dead simple configurable user notifications using the Correspondent engine!
@@ -15,6 +13,7 @@ gem 'correspondent'
 ```
 
 And then execute:
+
 ```bash
 $ bundle
 ```
@@ -32,26 +31,26 @@ $ rails g correspondent:install
 Notifications can easily be setup using Correspondent. The following example goes through the basic usage. There are only two steps for the basic configuration:
 
 1. Invoke notifies and configure the subscriber (user in this case), the triggers (method purchase in this case) and desired options
-2. Define the to_notification method to configure information that needs to be used to create notifications 
+2. Define the to_notification method to configure information that needs to be used to create notifications
 
 ```ruby
 # Example model using Correspondent
-# app/models/purchase.rb 
+# app/models/purchase.rb
 class Purchase < ApplicationRecord
   belongs_to :user
   belongs_to :store
-  
+
   # Notifies configuration
   # First argument is the subscriber (the one that receives a notification). Can be an NxN association as well (e.g.: users) which will create a notification for each associated record.
   # Second argument are the triggers (the method inside that model that triggers notifications). Can be an array of symbols for multiple triggers for the same entity.
-  # Third argument are generic options as a hash 
+  # Third argument are generic options as a hash
   notifies :user, :purchase, avoid_duplicates: true
-  
+
   # Many notifies definitions can be used for different subscribers
   # In the following case, every time purchase is invoked the following will happen:
-  # 1. A notification will be created for `user` 
+  # 1. A notification will be created for `user`
   # 2. A notification will be created for `store`
-  # 3. An email will be triggered using the `StoreMailer` (invoking a method called purchase_email) 
+  # 3. An email will be triggered using the `StoreMailer` (invoking a method called purchase_email)
   notifies :store, :purchase, avoid_duplicates: true, mailer: StoreMailer
 
   # `notifies` will hook into the desired triggers.
@@ -74,7 +73,7 @@ class Purchase < ApplicationRecord
   #
   # def to_notification(*)
   #   # some hash
-  # end 
+  # end
   def to_notification(entity:, trigger:)
     {
       title: "Purchase ##{id} for #{entity} #{send(entity).name}",
@@ -94,10 +93,10 @@ Correspondent can also trigger emails if desired. To trigger emails, the mailer 
 
 class Purchase < ApplicationRecord
   belongs_to :user
-  
+
   # Pass the desired mailer in the `mailer:` option
   notifies :user, :purchase, mailer: ApplicationMailer
-  
+
   def purchase
     # some business logic
   end
@@ -110,15 +109,15 @@ class ApplicationMailer < ActionMailer::Base
 
   # The mailer should implement methods following the naming convention of
   # #{trigger}_email(triggering_instance)
-  # 
+  #
   # In this case, the `trigger` is the method purchase, so Correspondent will look for
   # the purchase_email method. It will always pass the instance that triggered the email
-  # as an argument. 
+  # as an argument.
   def purchase_email(purchase)
     @purchase = purchase
     mail(to: purchase.user.email, subject: "Congratulations on the purchase of #{purchase.name}")
   end
-end 
+end
 ```
 
 To reference the created notifications in the desired model, use the following association:
@@ -137,7 +136,7 @@ class Purchase < ApplicationRecord
 end
 ```
 
-If a specific column is not needed for your project, remove them from the generated migrations and don't return the respective attribute inside the to_notification method. 
+If a specific column is not needed for your project, remove them from the generated migrations and don't return the respective attribute inside the to_notification method.
 
 ### Options
 
@@ -158,7 +157,7 @@ notifies :some_resouce, :trigger, email_only: false
 
 # Conditionals
 # If or unless options can be passed either as procs/lambdas or symbols representing the name of a method
-# These will be evaluated in an instance context, every time trigger is invoked 
+# These will be evaluated in an instance context, every time trigger is invoked
 notifies :some_resource, :trigger, if: :should_be_notified?
 
 notifies :some_resource, :trigger, unless: -> { should_be_notified? && is_eligible? }
@@ -168,7 +167,7 @@ notifies :some_resource, :trigger, unless: -> { should_be_notified? && is_eligib
 
 Correspondent exposes a few APIs to be used for handling notification logic in the application.
 
-All APIs use the `stale?` check. So if passing the If-None-Match header, the API will support returning 304 (not modified) if the collection hasn't changed. 
+All APIs use the `stale?` check. So if passing the If-None-Match header, the API will support returning 304 (not modified) if the collection hasn't changed.
 
 ```json
 Parameters

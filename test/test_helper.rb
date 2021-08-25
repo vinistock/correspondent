@@ -7,11 +7,6 @@ SimpleCov.start do
   add_filter("/test/")
 end
 
-unless ENV["ON_CI"].nil?
-  require "codecov"
-  SimpleCov.formatter = SimpleCov::Formatter::Codecov
-end
-
 ActiveRecord::Migrator.migrations_paths = [
   File.expand_path("../test/dummy/db/migrate", __dir__),
   File.expand_path("../db/migrate", __dir__)
