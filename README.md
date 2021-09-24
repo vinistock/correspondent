@@ -1,3 +1,5 @@
+This unfinished experiment is no longer active.
+
 # Correspondent
 
 Dead simple configurable user notifications using the Correspondent engine!
