@@ -1,4 +1,4 @@
-This unfinished experiment is no longer active.
+This unfinished experiment is no longer active. This was never actually ready and really shouldn't be used.
 
 # Correspondent
 
